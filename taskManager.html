@@ -26,29 +26,46 @@
             console.log('delete');
         }
 
-        function showProject() {
-            console.log('show')
+        function showProject(id) {
+            console.log(id)
         }
+
+        function addEmployees() {
+            let dataEmployee = $$('newEmployee').getValues(),
+                id = employees[employees.length - 1].id + 1;
+            dataEmployee.id = id;
+            employees.push(dataEmployee);
+
+            $$('activeEmployees').add(dataEmployee);
+            webix.message('Сотрудник добавлен');
+            $$('newEmployee').clear();
+            $$('newEmployees').hide();
+        }
+
+        function deleteEmployees() {
+
+        }
+        
 
         let header = {
             cols: [
-                { type:'header', template: 'Task manager' },
-                { view:'button', id:'my_button', value:'Авторизация', autowidth:true }
+                { type: 'header', template: 'Task manager' },
+                { view: 'button', id: 'my_button', value: 'Авторизация', autowidth:true }
             ]
         };
 
         let menu = {
-            view: "list",
-                id:"mylist",
-                layout:"x",
-                select:true,
-                width:400,
-                css:"list_color",
-                data:[
-                    { id: 'projects', value:'Проекты' },
-                    { id: 'employees', value:'Учёт сотрудников' }
+            view: 'list',
+                id: 'menu',
+                layout: 'x',
+                select: true,
+                width: 400,
+                css: 'list_color',
+                data: [
+                    { id: 'projects', value: 'Проекты' },
+                    { id: 'employees', value: 'Учёт сотрудников' }
                 ],
-                on:{
+                on: {
                     onAfterSelect: function(id) { 
                     $$(id).show();
                     }
@@ -60,21 +77,21 @@
             {
                 cols: [
                     {
-                        view:"button", id:"addButton", value:'Добавить проект', autowidth:true, 
+                        view: 'button', id: 'addButton', value: 'Добавить проект', autowidth:true, 
                         on: {
-                            "onItemClick": addProject
+                            'onItemClick': addProject
                         }
                     },
                     {
-                        view:"button", id:"completeButton", value:'Завершить проект', autowidth:true, 
+                        view: 'button', id: 'completeButton', value: 'Завершить проект', autowidth:true, 
                         on: {
-                            "onItemClick": completeProject
+                            'onItemClick': completeProject
                         }
                     },
                     {
-                        view:"button", id:"deleteButton", value:'Удалить проект', autowidth:true,
+                        view: 'button', id: 'deleteButton', value: 'Удалить проект', autowidth:true,
                         on: {
-                            "onItemClick": deleteProject
+                            'onItemClick': deleteProject
                         }
                     }
                 ]
@@ -82,35 +99,75 @@
                 {
                     view: 'datatable',
                     id: 'activeProject',
-                    sort:'multi',
+                    sort: 'multi',
                     scroll: 'y',
                     columnWidth: 200,
                     autoConfig: true,
                     data: activeProject,
                     on: {
-                        "onItemClick": showProject
+                        'onItemDblClick': showProject
                     }
                 }
             ]
         };
 
         let activeEmployees = {
-            view: 'datatable',
-            id: 'activeProject',
-            sort:'multi',
-            scroll: 'y',
-            columnWidth: 200,
-            autoConfig: true,
-            data: employees
+            rows: [
+            {
+                cols: [
+                    {
+                        view: 'button', id: 'addEmployees', value: 'Добавить сотрудника', autowidth: true,
+                        popup: 'newEmployees'
+                    },
+                    {
+                        view: 'button', id: 'deleteEmployees', value: 'Удалить сотрудника', autowidth: true, 
+                        on: {
+                            'onItemClick': deleteEmployees
+                        }
+                    }
+                ]
+            }, 
+
+                {
+                view: 'datatable',
+                id: 'activeEmployees',
+                sort:'multi',
+                scroll: 'y',
+                columnWidth: 200,
+                autoConfig: true,
+                data: employees
+                }
+            ]
         };
 
         let multiview = {
             view: 'multiview',
-            cells:[
+            cells: [
                 { id: 'projects', rows: [activeProjects] },
                 { id: 'employees', rows: [activeEmployees] }
             ]
         };
+        
+        webix.ui({
+            view: 'popup',
+            id: 'newEmployees',
+            width: 500,
+            top: 200, left: 300,
+            body: {
+                view: 'form', 
+                id: 'newEmployee',
+                width: 300,
+                elements: [
+                    { view: 'text', label: 'Имя', name: 'Имя' },
+                    { view: 'text', label: 'Фамилия', name: 'Фамилия' },
+                    { view: 'text', label: 'Должность', name: 'Должность' },
+                    { margin: 5, cols: [
+                    { view: 'button', value: 'Сохранить' , css: 'webix_primary', click: addEmployees},
+                    { view: 'button', value: 'Отменить' }
+                ]}
+            ]
+            }
+        });
 
         webix.ready(function() {
             webix.ui({
