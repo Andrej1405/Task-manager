@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="webix/webix.css" type="text/css">
+    <script src="webix/webix.js" type="text/javascript"></script>
+    
+    <link rel="stylesheet" href="style/style.css">
+    <script src="javascript/object.js"></script>
+
+    <title>Task manager</title>
+</head>
+<body>
+    <script>
+        function addProject() {
+            console.log('add');
+        }
+
+        function completeProject() {
+            console.log('complete');
+        }
+
+        function deleteProject() {
+            console.log('delete');
+        }
+
+        function showProject() {
+            console.log('show')
+        }
+
+        let header = {
+            cols: [
+                { type:'header', template: 'Task manager' },
+                { view:'button', id:'my_button', value:'Авторизация', autowidth:true }
+            ]
+        };
+
+        let menu = {
+            view: "list",
+                id:"mylist",
+                layout:"x",
+                select:true,
+                width:400,
+                css:"list_color",
+                data:[
+                    { id: 'projects', value:'Проекты' },
+                    { id: 'employees', value:'Учёт сотрудников' }
+                ],
+                on:{
+                    onAfterSelect: function(id) { 
+                    $$(id).show();
+                    }
+                }
+        };
+
+        let activeProjects = {
+            rows: [
+            {
+                cols: [
+                    {
+                        view:"button", id:"addButton", value:'Добавить проект', autowidth:true, 
+                        on: {
+                            "onItemClick": addProject
+                        }
+                    },
+                    {
+                        view:"button", id:"completeButton", value:'Завершить проект', autowidth:true, 
+                        on: {
+                            "onItemClick": completeProject
+                        }
+                    },
+                    {
+                        view:"button", id:"deleteButton", value:'Удалить проект', autowidth:true,
+                        on: {
+                            "onItemClick": deleteProject
+                        }
+                    }
+                ]
+            }, 
+                {
+                    view: 'datatable',
+                    id: 'activeProject',
+                    sort:'multi',
+                    scroll: 'y',
+                    columnWidth: 200,
+                    autoConfig: true,
+                    data: activeProject,
+                    on: {
+                        "onItemClick": showProject
+                    }
+                }
+            ]
+        };
+
+        let activeEmployees = {
+            view: 'datatable',
+            id: 'activeProject',
+            sort:'multi',
+            scroll: 'y',
+            columnWidth: 200,
+            autoConfig: true,
+            data: employees
+        };
+
+        let multiview = {
+            view: 'multiview',
+            cells:[
+                { id: 'projects', rows: [activeProjects] },
+                { id: 'employees', rows: [activeEmployees] }
+            ]
+        };
+
+        webix.ready(function() {
+            webix.ui({
+                rows:[
+                    header,
+                    menu,
+                    multiview
+                ]       
+            });
+        });
+    </script>
+</body>
+</html>
