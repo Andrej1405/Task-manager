@@ -15,42 +15,180 @@
 <body>
     <script>
         function addProject() {
-            console.log('add');
+            webix.ui({
+                css: 'newProjectInSystem',
+                view: 'popup',
+                id: 'newProjects',
+                position: 'center',
+                body: {
+                    view: 'form', 
+                    id: 'newProject',
+                    width: 300,
+                    elements: [
+                        { view: 'text', label: 'Проект', name: 'Проект', validate: webix.rules.isNotEmpty },
+                        { view: 'text', label: 'Статус', name: 'Статус', validate: webix.rules.isNotEmpty },
+                        { view: 'text', label: 'Создан', labelWidth: 81, name: 'Создан', validate: webix.rules.isNumber },
+                        { margin: 5, cols: [
+                        { view: 'button', value: 'Создать' , minWidth: 65, css: 'webix_primary', click: addNewProject },
+                        { view: 'button', value: 'Отмена', minWidth: 65, click: canselAddProject }
+                    ]}
+                ],
+                on: {
+                    onValidationError: function (key, obj) {
+                        textMessage = 'Некорретно введена информация';
+                        webix.message( { type:"error", text: textMessage } );
+                        }
+                    }
+                }
+            }).show();
+
+            function addNewProject() {
+
+            }
+
+            function canselAddProject() {
+                $$('newProject').clear();
+                $$('newProjects').hide();
+            }
+
         }
 
-        function completeProject() {
-            console.log('complete');
-        }
-
-        function deleteProject() {
-            console.log('delete');
-        }
-
+        
         function showProject(id) {
-            console.log(id)
+
+
+            function completeProject() {
+                console.log('complete');
+            }
+
+            function deleteProject() {
+                console.log('delete');
+            }
         }
 
-        function addEmployees() {
-            let dataEmployee = $$('newEmployee').getValues(),
-                id = employees[employees.length - 1].id + 1;
-            dataEmployee.id = id;
-            employees.push(dataEmployee);
+        function addNewEmployee() {
+            webix.ui({
+            css: 'newEmployeeInProject',
+            view: 'popup',
+            id: 'newEmployees',
+            position: 'center',
+            body: {
+                view: 'form', 
+                id: 'newEmployee',
+                width: 300,
+                elements: [
+                    { view: 'text', label: 'Имя', name: 'Имя', validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Фамилия', name: 'Фамилия', validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Должность', labelWidth: 81, name: 'Должность', validate: webix.rules.isNotEmpty },
+                    { margin: 5, cols: [
+                    { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: addEmployees},
+                    { view: 'button', value: 'Отменить', minWidth: 65, click: canselEmployee }
+                ]}
+            ],
+            on: {
+                onValidationError: function (key, obj) {
+                    textMessage = 'Некорретно введена информация';
+                    webix.message( { type:"error", text: textMessage } );
+                    }
+                }
+            }
+        }).show();
 
-            $$('activeEmployees').add(dataEmployee);
-            webix.message('Сотрудник добавлен');
-            $$('newEmployee').clear();
-            $$('newEmployees').hide();
+            function addEmployees() {
+                if ($$('newEmployee').validate()) {
+                    let dataEmployee = $$('newEmployee').getValues(),
+                        id;
+                    if (employees.length == 0) {
+                        id = 1;
+                    } else {
+                        id = employees[employees.length - 1].id + 1;
+                    }
+
+                    dataEmployee.id = id;
+                    employees.push(dataEmployee);
+
+                    $$('activeEmployees').add(dataEmployee);
+                    webix.message('Сотрудник добавлен');
+                    $$('newEmployee').clear();
+                    $$('newEmployees').hide();
+                }
+            }
+
+            function canselEmployee() {
+                $$('newEmployee').clear();
+                $$('newEmployees').hide();
+            }
         }
 
-        function deleteEmployees() {
+        function showEmployeeCard(id) {
+            webix.ui({
+                css: 'editEmployees',
+                view: 'popup',
+                id: 'editEmployee',
+                position: 'center',
+                body: {
+                    view: 'form', 
+                    id: 'cardEmployee',
+                    width: 330,
+                    elements: [
+                        { view: 'text', label: 'Имя', name: 'Имя', validate: webix.rules.isNotEmpty },
+                        { view: 'text', label: 'Фамилия', name: 'Фамилия', validate: webix.rules.isNotEmpty },
+                        { view: 'text', label: 'Должность', labelWidth: 81, name: 'Должность', validate: webix.rules.isNotEmpty },
+                        { margin: 5, cols: [
+                        { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: saveEmployee },
+                        { view: 'button', value: 'Удалить сотрудника' , minWidth: 65, css: 'webix_primary', height: 45, click: deleteEmployees}
+                    ]}
+                ],
+                on: {
+                    onValidationError: function (key, obj) {
+                        textMessage = 'Некорретно введена информация';
+                        webix.message( { type:"error", text: textMessage } );
+                    }
+                }
+            }
+        }).show();
 
+            let values = $$('activeEmployees').getItem(id);
+            $$('cardEmployee').setValues(values);
+
+                function deleteEmployees() {
+                webix.confirm({
+                    title: 'Сотрудник будет удалён',
+                    text: 'Уверены, что хотите удалить сотрудника?'
+                }).then( () => {
+                    let dataEmployee = $$('cardEmployee').getValues();
+                    idEmployee = dataEmployee.id;
+
+                    for (let i = 0; i < employees.length; i++) {
+                        if (employees[i].id == idEmployee) {
+                            employees.splice(i, 1);
+                        }
+                    }
+
+                    webix.message('Сотрудник удалён');
+                    $$('activeEmployees').remove(id)
+                    $$('cardEmployee').clear();
+                    console.log($$('activeEmployees'))
+                    
+                }).finally( () => $$('editEmployee').hide());
+            }
+
+            function saveEmployee() {
+                    if ($$('cardEmployee').validate()) {
+                    let newValues = $$('cardEmployee').getValues();
+                
+                    $$('activeEmployees').updateItem(newValues.id, newValues);
+                    $$('cardEmployee').clear();
+                    $$('editEmployee').hide();
+                }
+            }             
         }
         
 
         let header = {
             cols: [
                 { type: 'header', template: 'Task manager' },
-                { view: 'button', id: 'my_button', value: 'Авторизация', autowidth:true }
+                { view: 'button', id: 'my_button', value: 'Авторизация', autowidth: true }
             ]
         };
 
@@ -67,7 +205,7 @@
                 ],
                 on: {
                     onAfterSelect: function(id) { 
-                    $$(id).show();
+                        $$(id).show();
                     }
                 }
         };
@@ -77,19 +215,19 @@
             {
                 cols: [
                     {
-                        view: 'button', id: 'addButton', value: 'Добавить проект', autowidth:true, 
+                        view: 'button', id: 'addButton', value: 'Добавить проект', autowidth: true, 
                         on: {
                             'onItemClick': addProject
                         }
                     },
                     {
-                        view: 'button', id: 'completeButton', value: 'Завершить проект', autowidth:true, 
+                        view: 'button', id: 'completeButton', value: 'Завершить проект', autowidth: true, 
                         on: {
                             'onItemClick': completeProject
                         }
                     },
                     {
-                        view: 'button', id: 'deleteButton', value: 'Удалить проект', autowidth:true,
+                        view: 'button', id: 'deleteButton', value: 'Удалить проект', autowidth: true,
                         on: {
                             'onItemClick': deleteProject
                         }
@@ -101,7 +239,7 @@
                     id: 'activeProject',
                     sort: 'multi',
                     scroll: 'y',
-                    columnWidth: 200,
+                    columnWidth: 325,
                     autoConfig: true,
                     data: activeProject,
                     on: {
@@ -117,12 +255,8 @@
                 cols: [
                     {
                         view: 'button', id: 'addEmployees', value: 'Добавить сотрудника', autowidth: true,
-                        popup: 'newEmployees'
-                    },
-                    {
-                        view: 'button', id: 'deleteEmployees', value: 'Удалить сотрудника', autowidth: true, 
                         on: {
-                            'onItemClick': deleteEmployees
+                            'onItemClick': addNewEmployee
                         }
                     }
                 ]
@@ -133,9 +267,12 @@
                 id: 'activeEmployees',
                 sort:'multi',
                 scroll: 'y',
-                columnWidth: 200,
+                columnWidth: 470,
                 autoConfig: true,
-                data: employees
+                data: employees,
+                on: {
+                        'onItemDblClick': showEmployeeCard
+                    }
                 }
             ]
         };
@@ -147,30 +284,10 @@
                 { id: 'employees', rows: [activeEmployees] }
             ]
         };
-        
-        webix.ui({
-            view: 'popup',
-            id: 'newEmployees',
-            width: 500,
-            top: 200, left: 300,
-            body: {
-                view: 'form', 
-                id: 'newEmployee',
-                width: 300,
-                elements: [
-                    { view: 'text', label: 'Имя', name: 'Имя' },
-                    { view: 'text', label: 'Фамилия', name: 'Фамилия' },
-                    { view: 'text', label: 'Должность', name: 'Должность' },
-                    { margin: 5, cols: [
-                    { view: 'button', value: 'Сохранить' , css: 'webix_primary', click: addEmployees},
-                    { view: 'button', value: 'Отменить' }
-                ]}
-            ]
-            }
-        });
 
         webix.ready(function() {
             webix.ui({
+                css: 'allProject',
                 rows:[
                     header,
                     menu,
