@@ -43,7 +43,23 @@
             }).show();
 
             function addNewProject() {
+                if ( $$('newProject').validate() ) {
+                    let dataProject = $$('newProject').getValues(),
+                        id;
+                    if (activeProject.length == 0) {
+                        id = 1;
+                    } else {
+                        id = activeProject[activeProject.length - 1].id + 1;
+                    }
 
+                    dataProject.id = id;
+                    activeProject.push(dataProject);
+
+                    $$('activeProject').add(dataProject);
+                    webix.message('Новый проект создан');
+                    $$('newProject').clear();
+                    $$('newProjects').hide();
+                }
             }
 
             function canselAddProject() {
@@ -55,7 +71,7 @@
 
         
         function showProject(id) {
-
+            console.log(id);
 
             function completeProject() {
                 console.log('complete');
@@ -64,6 +80,41 @@
             function deleteProject() {
                 console.log('delete');
             }
+        }
+
+        function completedProject() {
+            webix.ui({
+                css: 'sarchivalProjects',
+                view: 'popup',
+                id: 'completeProjects',
+                position: 'center',
+                body: {
+                    rows: [
+                        {
+                        view: 'datatable',
+                        id: 'completedProject',
+                        sort: 'multi',
+                        scroll: 'y',
+                        columnWidth: 325,
+                        autoConfig: true,
+                        data: complitedProjects
+                        },
+
+                        {
+                        view: 'button', 
+                        id: 'canselWindowsCompletedProject', 
+                        value: 'Закрыть', 
+                        css: 'webix_primary', 
+                        inputWidth: 300,
+                        on: {
+                            'onItemClick': function () {
+                                $$('completeProjects').hide();
+                                }
+                            }
+                        }
+                    ]
+                }
+            }).show()
         }
 
         function addNewEmployee() {
@@ -95,9 +146,18 @@
         }).show();
 
             function addEmployees() {
-                if ($$('newEmployee').validate()) {
+                if ( $$('newEmployee').validate() ) {
                     let dataEmployee = $$('newEmployee').getValues(),
                         id;
+
+                    for (let i = 0; i < employees.length; i++) {
+                        if ( (employees[i].Имя == dataEmployee.Имя) && (employees[i].Фамилия == dataEmployee.Фамилия) ) {
+                            webix.message('Такой сотрудник уже создан');
+                            //$$('newEmployee').clear();
+                            return;
+                        }
+                    }
+
                     if (employees.length == 0) {
                         id = 1;
                     } else {
@@ -174,7 +234,7 @@
             }
 
             function saveEmployee() {
-                    if ($$('cardEmployee').validate()) {
+                if ($$('cardEmployee').validate()) {
                     let newValues = $$('cardEmployee').getValues();
                 
                     $$('activeEmployees').updateItem(newValues.id, newValues);
@@ -220,16 +280,11 @@
                             'onItemClick': addProject
                         }
                     },
+
                     {
-                        view: 'button', id: 'completeButton', value: 'Завершить проект', autowidth: true, 
+                        view: 'button', id: 'completeButton', value: 'Завершённые проекты', autowidth: true, 
                         on: {
-                            'onItemClick': completeProject
-                        }
-                    },
-                    {
-                        view: 'button', id: 'deleteButton', value: 'Удалить проект', autowidth: true,
-                        on: {
-                            'onItemClick': deleteProject
+                            'onItemClick': completedProject
                         }
                     }
                 ]
