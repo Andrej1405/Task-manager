@@ -1,10 +1,9 @@
 let activeProject = [
-    {id: 1, Проект: "TaskManager1", Статус: "Назначен", Создан: '3.03.2020' },
-    {id: 2, Проект: "TaskManager2", Статус: "Назначен", Создан: '3.02.2020' },
-    {id: 3, Проект: "TaskManager3", Статус: "Назначен", Создан: '3.01.2020' },
-    {id: 4, Проект: "TaskManager4", Статус: "Назначен", Создан: '4.03.2020' }
+    { id: 1, project: "TaskManager", date: '25.03.2020', tasks: [
+        
+    ] },
 ],
-    projectInWork = [
+    tasksProject = [
 
     ],
 
@@ -13,9 +12,15 @@ let activeProject = [
     ],
 
     complitedProjects = [
-
+        { id: 2, project: 'Project1', date: '28.03.2020' }
     ];
 
 let employees = [
-        {id: 1, Имя: 'Андрей', Фамилия: 'Уденцов', Должность: 'Младший разработчик'}
+        { id: 1, surname: 'Уденцов', name: 'Андрей', position: 'Младший разработчик' }
     ];
+
+let massStatus = {
+    '1' : 'Назначен',
+    '2' : 'В работе',
+    '3' : 'Выполнен'
+};

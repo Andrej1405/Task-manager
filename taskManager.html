@@ -16,7 +16,6 @@
     <script>
         function addProject() {
             webix.ui({
-                css: 'newProjectInSystem',
                 view: 'popup',
                 id: 'newProjects',
                 position: 'center',
@@ -25,9 +24,8 @@
                     id: 'newProject',
                     width: 300,
                     elements: [
-                        { view: 'text', label: 'Проект', name: 'Проект', validate: webix.rules.isNotEmpty },
-                        { view: 'text', label: 'Статус', name: 'Статус', validate: webix.rules.isNotEmpty },
-                        { view: 'text', label: 'Создан', labelWidth: 81, name: 'Создан', validate: webix.rules.isNumber },
+                        { view: 'text', label: 'Проект', name: 'project', validate: webix.rules.isNotEmpty },
+                        { view: 'text', label: 'Создан', labelWidth: 81, name: 'date', validate: webix.rules.isNumber },
                         { margin: 5, cols: [
                         { view: 'button', value: 'Создать' , minWidth: 65, css: 'webix_primary', click: addNewProject },
                         { view: 'button', value: 'Отмена', minWidth: 65, click: canselAddProject }
@@ -46,6 +44,14 @@
                 if ( $$('newProject').validate() ) {
                     let dataProject = $$('newProject').getValues(),
                         id;
+
+                    for (let i = 0; i < activeProject.length; i++) {
+                        if (dataProject.project == activeProject[i].project) {
+                            webix.message('Такой проект уже существует');
+                            return;
+                        }
+                    }
+
                     if (activeProject.length == 0) {
                         id = 1;
                     } else {
@@ -53,8 +59,9 @@
                     }
 
                     dataProject.id = id;
+                    dataProject.tasks = [];
                     activeProject.push(dataProject);
-
+                    
                     $$('activeProject').add(dataProject);
                     webix.message('Новый проект создан');
                     $$('newProject').clear();
@@ -71,20 +78,155 @@
 
         
         function showProject(id) {
-            console.log(id);
+            let employeesInvolved = {},
+                idActiveProject = $$('activeProject').getSelectedId().id,
+                objTask = [],
+                number;
 
-            function completeProject() {
-                console.log('complete');
+            for (let i = 0; i < activeProject.length; i++) {
+                if (activeProject[i].id == idActiveProject) {
+                    if (activeProject[i].tasks.length == 0) {
+                        number = 0;
+                    } else {
+                        let numberTask = activeProject[i].tasks;
+                        number = numberTask[numberTask.length - 1].id;
+                    }
+                }
+            }
+            
+            for (let i = 0; i < activeProject.length; i++) {
+                if (activeProject[i].id == idActiveProject) {
+                    objTask = activeProject[i].tasks;
+                }
+            }
+            
+            for (let i = 0; i < employees.length; i++) {
+                employeesInvolved[employees[i].id] = `${employees[i].surname} ${employees[i].name}`;
             }
 
-            function deleteProject() {
-                console.log('delete');
+            function addTask() {
+                ++number;
+                $$('tasksProject').add({'id' : number});
+            }
+
+            // function deleteTask() {
+            //     let index = $$('tasksProject').getSelectedId();
+            //     $$('tasksProject').remove(index);
+            // }
+
+            function saveTasks() {
+                for (let i = 0; i < activeProject.length; i++) {
+                    if (activeProject[i].id == idActiveProject) {
+                        activeProject[i].tasks = [];
+                        let dataTasks = $$('tasksProject').data.pull;
+
+                        for (let obj in dataTasks) {
+                            activeProject[i].tasks.push(dataTasks[obj]);
+                        }
+                    }
+                }
+            }
+
+            // function completeProject() {
+            //     webix.confirm({
+            //         title: 'Закрытие проекта',
+            //         text: 'Уверены, что хотите завершить проект?'
+            //     }).then( () => {
+
+            //         for ( let i = 0; i < activeProject.length; i++ ) {
+            //             if ( activeProject[i].id == idActiveProject ) {
+            //                 let complProject = Object.assign({}, activeProject[i]);
+            //                 complitedProjects.push(complProject);
+            //                 activeProject.splice(i, 1);
+            //             }
+            //         }
+
+            //         $$('activeProject').remove(idActiveProject);
+            //         $$('editProject').hide();
+            //         webix.message('Проект закрыт');
+            //         console.log(activeProject)
+            //     });
+            // }
+
+            function canselTasks() {
+                $$('editProject').hide();
+            }
+
+            webix.ui({
+                view: 'popup',
+                id: 'editProject',
+                position: 'center',
+                body: {
+                    rows: [
+                        { view:"toolbar", elements:[
+                            { view: 'button', value: 'Добавить задачу', click: addTask, minWidth: 65, css: 'webix_primary' },
+                            //{ view: 'button', value: 'Удалить задачу', click: deleteTask, minWidth: 65, css: 'webix_primary' }
+                        ]},
+
+                        {
+                        view: 'datatable',
+                        id: 'tasksProject',
+                        select: true,
+                        width: 1150,
+                        height: 450,
+                        editable: true,
+                        scroll: 'y',
+                        autoConfig: true,
+                        data: objTask,
+                        columns: [
+                            { id: 'id' },
+                            { id: 'tasks', header: 'Задача', fillspace: true, editor: 'text' },
+                            { id: 'designatedEmployee', header: 'Назначенный сотрудник', fillspace: true, editor: 'select', options: employeesInvolved },
+                            { id: 'hours', header: 'Часы', fillspace: true, editor: 'text' },
+                            { id: 'hoursSpent', header: 'Потраченные часы', fillspace: true, editor: 'text' },
+                            { id: 'statusTask', header: 'Статус', fillspace: true, editor: 'select', options: massStatus },
+                            //{ id:'', template: "<input class = 'delTask' type = 'button' value = 'Удалить задачу'>", fillspace: true},
+                        ],
+                        },
+                        {
+                            cols: [
+                                { view: 'button', value: 'Сохранить' , click: saveTasks, minWidth: 65, css: 'webix_primary' , },
+                                //{ view: 'button', value: 'Завершить проект' , click: completeProject, minWidth: 65, css: 'webix_primary' , },
+                                { view: 'button', value: 'Закрыть' , click: canselTasks, minWidth: 65, css: 'webix_primary'  }
+                            ]
+                        }
+                    ]
+                }
+            }).show();
+
+            // $$('tasksProject').on_click.delTask = function(e, id) {
+            //     $$('tasksProject').remove(id)
+            //     webix.message('Задача удалена');
+            // };
+        }
+
+        
+
+        function deleteProject() {
+            if ($$('activeProject').getSelectedId() !== undefined) {
+            webix.confirm({
+                    title: 'Проект будет удалён',
+                    text: 'Уверены, что хотите удалить проект?'
+                }).then( () => {
+                    let dataProject = $$('activeProject').getSelectedId(),
+                    idProject = dataProject.id;
+
+                    for ( let i = 0; i < activeProject.length; i++ ) {
+                        if ( activeProject[i].id == idProject ) {
+                            let deletProject = Object.assign({}, activeProject[i]);
+                            deletedProject.push(deletProject);
+                            activeProject.splice(i, 1);
+                        }
+                    }
+
+                    $$('activeProject').remove(idProject);
+                    webix.message('Проект удалён');
+                });
             }
         }
 
         function completedProject() {
             webix.ui({
-                css: 'sarchivalProjects',
                 view: 'popup',
                 id: 'completeProjects',
                 position: 'center',
@@ -93,11 +235,13 @@
                         {
                         view: 'datatable',
                         id: 'completedProject',
-                        sort: 'multi',
                         scroll: 'y',
-                        columnWidth: 325,
                         autoConfig: true,
-                        data: complitedProjects
+                        data: complitedProjects,
+                        columns: [
+                            { id: 'project', header: 'Название проекта', fillspace: true },
+                            { id: 'date', header: 'Дата создания', fillspace: true }
+                        ],
                         },
 
                         {
@@ -119,7 +263,6 @@
 
         function addNewEmployee() {
             webix.ui({
-            css: 'newEmployeeInProject',
             view: 'popup',
             id: 'newEmployees',
             position: 'center',
@@ -128,9 +271,9 @@
                 id: 'newEmployee',
                 width: 300,
                 elements: [
-                    { view: 'text', label: 'Имя', name: 'Имя', validate: webix.rules.isNotEmpty },
-                    { view: 'text', label: 'Фамилия', name: 'Фамилия', validate: webix.rules.isNotEmpty },
-                    { view: 'text', label: 'Должность', labelWidth: 81, name: 'Должность', validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Фамилия', name: 'surname', validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Имя', name: 'name', validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Должность', labelWidth: 81, name: 'position', validate: webix.rules.isNotEmpty },
                     { margin: 5, cols: [
                     { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: addEmployees},
                     { view: 'button', value: 'Отменить', minWidth: 65, click: canselEmployee }
@@ -143,7 +286,7 @@
                     }
                 }
             }
-        }).show();
+            }).show();
 
             function addEmployees() {
                 if ( $$('newEmployee').validate() ) {
@@ -151,7 +294,7 @@
                         id;
 
                     for (let i = 0; i < employees.length; i++) {
-                        if ( (employees[i].Имя == dataEmployee.Имя) && (employees[i].Фамилия == dataEmployee.Фамилия) ) {
+                        if ( (employees[i].name == dataEmployee.name) && (employees[i].surname == dataEmployee.surname) ) {
                             webix.message('Такой сотрудник уже создан');
                             //$$('newEmployee').clear();
                             return;
@@ -182,7 +325,6 @@
 
         function showEmployeeCard(id) {
             webix.ui({
-                css: 'editEmployees',
                 view: 'popup',
                 id: 'editEmployee',
                 position: 'center',
@@ -191,22 +333,22 @@
                     id: 'cardEmployee',
                     width: 330,
                     elements: [
-                        { view: 'text', label: 'Имя', name: 'Имя', validate: webix.rules.isNotEmpty },
-                        { view: 'text', label: 'Фамилия', name: 'Фамилия', validate: webix.rules.isNotEmpty },
-                        { view: 'text', label: 'Должность', labelWidth: 81, name: 'Должность', validate: webix.rules.isNotEmpty },
+                        { view: 'text', label: 'Фамилия', name: 'surname', validate: webix.rules.isNotEmpty },
+                        { view: 'text', label: 'Имя', name: 'name', validate: webix.rules.isNotEmpty },
+                        { view: 'text', label: 'Должность', labelWidth: 81, name: 'position', validate: webix.rules.isNotEmpty },
                         { margin: 5, cols: [
                         { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: saveEmployee },
                         { view: 'button', value: 'Удалить сотрудника' , minWidth: 65, css: 'webix_primary', height: 45, click: deleteEmployees}
                     ]}
                 ],
-                on: {
-                    onValidationError: function (key, obj) {
-                        textMessage = 'Некорретно введена информация';
-                        webix.message( { type:"error", text: textMessage } );
-                    }
+                    on: {
+                        onValidationError: function (key, obj) {
+                            textMessage = 'Некорретно введена информация';
+                            webix.message( { type:"error", text: textMessage } );
+                            }
+                        }
                 }
-            }
-        }).show();
+            }).show();
 
             let values = $$('activeEmployees').getItem(id);
             $$('cardEmployee').setValues(values);
@@ -228,9 +370,9 @@
                     webix.message('Сотрудник удалён');
                     $$('activeEmployees').remove(id)
                     $$('cardEmployee').clear();
-                    console.log($$('activeEmployees'))
+                    $$('editEmployee').hide();
                     
-                }).finally( () => $$('editEmployee').hide());
+                })/*.finally( () => $$('editEmployee').hide())*/;
             }
 
             function saveEmployee() {
@@ -248,7 +390,8 @@
         let header = {
             cols: [
                 { type: 'header', template: 'Task manager' },
-                { view: 'button', id: 'my_button', value: 'Авторизация', autowidth: true }
+                { view: 'button', id: 'regButton', value: 'Регистрация', autowidth: true },
+                { view: 'button', id: 'autorizeButton', value: 'Авторизация', autowidth: true }
             ]
         };
 
@@ -282,6 +425,13 @@
                     },
 
                     {
+                        view: 'button', id: 'delProject', value: 'Удалить проект', autowidth: true, 
+                        on: {
+                            'onItemClick': deleteProject
+                        }
+                    },
+
+                    {
                         view: 'button', id: 'completeButton', value: 'Завершённые проекты', autowidth: true, 
                         on: {
                             'onItemClick': completedProject
@@ -294,9 +444,13 @@
                     id: 'activeProject',
                     sort: 'multi',
                     scroll: 'y',
-                    columnWidth: 325,
+                    select: true,
                     autoConfig: true,
                     data: activeProject,
+                    columns: [
+                        { id: 'project', header: 'Название проекта', fillspace: true },
+                        { id: 'date', header: 'Дата создания', fillspace: true }
+                    ],
                     on: {
                         'onItemDblClick': showProject
                     }
@@ -322,9 +476,15 @@
                 id: 'activeEmployees',
                 sort:'multi',
                 scroll: 'y',
+                select: true,
                 columnWidth: 470,
                 autoConfig: true,
                 data: employees,
+                columns: [
+                    { id: 'surname', header: 'Фамилия', fillspace: true },
+                    { id: 'name', header: 'Имя', fillspace: true },
+                    { id: 'position', header: 'Должность', fillspace: true }
+                ],
                 on: {
                         'onItemDblClick': showEmployeeCard
                     }
