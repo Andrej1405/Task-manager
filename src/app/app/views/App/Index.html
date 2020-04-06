@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="../../../public/css/webix.css">
-    <script src="../../../public/js/webix.js"></script>
-
-    <script src="../../../public/js/object.js"></script>
-    <script src="../../../public/js/tasksProject.js"></script>
-    <script src="../../../public/js/projects.js"></script>
-    <script src="../../../public/js/employees.js"></script>
+    <link rel="stylesheet" href="/public/css/webix.css">
+    <script src="/public/js/webix.js"></script>
+    
+    {{template "objects.html" .}}
+    {{template "tasksProject.html" .}}
+    {{template "projects.html" .}}
+    {{template "employees.html" .}}
 
     <title>Task manager</title>
 </head>
@@ -49,7 +49,7 @@
                 { id: 'employees', rows: [activeEmployees] }
             ]
         };
-
+        
         webix.ready(function() {
             webix.ui({
                 rows:[
