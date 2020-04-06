@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../../../public/css/webix.css">
+    <script src="../../../public/js/webix.js"></script>
+
+    <script src="../../../public/js/object.js"></script>
+    <script src="../../../public/js/tasksProject.js"></script>
+    <script src="../../../public/js/projects.js"></script>
+    <script src="../../../public/js/employees.js"></script>
+
+    <title>Task manager</title>
+</head>
+<body>
+    <script>
+        let header = {
+            cols: [
+                { type: 'header', template: 'Task manager' },
+                { view: 'button', id: 'regButton', value: 'Регистрация', autowidth: true },
+                { view: 'button', id: 'autorizeButton', value: 'Авторизация', autowidth: true }
+            ]
+        };
+
+        let menu = {
+            view: 'list',
+                id: 'menu',
+                layout: 'x',
+                select: true,
+                width: 400,
+                css: 'list_color',
+                data: [
+                    { id: 'projects', value: 'Проекты' },
+                    { id: 'employees', value: 'Учёт сотрудников' }
+                ],
+                on: {
+                    onAfterSelect: function(id) { 
+                        $$(id).show();
+                    }
+                }
+        };
+
+        let multiview = {
+            view: 'multiview',
+            cells: [
+                { id: 'projects', rows: [activeProjects] },
+                { id: 'employees', rows: [activeEmployees] }
+            ]
+        };
+
+        webix.ready(function() {
+            webix.ui({
+                rows:[
+                    header,
+                    menu,
+                    multiview
+                ]       
+            });
+        });
+    </script>
+</body>
+</html>
