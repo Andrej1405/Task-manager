@@ -12,6 +12,7 @@
     }
 }
 
+// Блок сайта, отвечающий за представление списка сотрудников. Состоит из меню и таблицы
 let activeEmployees = {
     rows: [
         {
@@ -33,7 +34,7 @@ let activeEmployees = {
         select: true,
         columnWidth: 470,
         autoConfig: true,
-        data: employees,
+        //data: employees,
         columns: [
             { id: 'surname', header: 'Фамилия', fillspace: true },
             { id: 'name', header: 'Имя', fillspace: true },
@@ -46,6 +47,7 @@ let activeEmployees = {
     ]
 };
 
+//Функция добавления новых сотрудников. При вызоые функции открывается всплывающее окно с формой внутри.
 function addNewEmployee() {
     webix.ui({
     view: 'popup',
@@ -73,6 +75,7 @@ function addNewEmployee() {
     }
 }).show();
 
+    // Добавление нового сотрудника в базу данных и таблицу на сайте
     function addEmployee() {
         if ( $$('newEmployee').validate() ) {
             let dataEmployee = $$('newEmployee').getValues();
@@ -96,6 +99,7 @@ function addNewEmployee() {
         }
     }
 
+    // Закрытие окна без сохранения изменений.
     function canselEmployee() {
         $$('newEmployee').clear();
         $$('newEmployees').hide();

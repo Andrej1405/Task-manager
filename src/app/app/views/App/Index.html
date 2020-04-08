@@ -6,16 +6,18 @@
 
     <link rel="stylesheet" href="/public/css/webix.css">
     <script src="/public/js/webix.js"></script>
-    
-    {{template "objects.html" .}}
+
+    <!-- Модули сайта, для удобства вынесенные в отдельные файлы -->
     {{template "tasksProject.html" .}}
     {{template "projects.html" .}}
     {{template "employees.html" .}}
+    {{template "objProjects.html" .}}
 
     <title>Task manager</title>
 </head>
 <body>
     <script>
+        // Шапка сайта
         let header = {
             cols: [
                 { type: 'header', template: 'Task manager' },
@@ -24,6 +26,7 @@
             ]
         };
 
+        // Основное меню управления сайтом
         let menu = {
             view: 'list',
                 id: 'menu',
@@ -41,7 +44,8 @@
                     }
                 }
         };
-
+    
+        // Виджет для переключения между основными компонентами сайта
         let multiview = {
             view: 'multiview',
             cells: [

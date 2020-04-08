@@ -13,6 +13,7 @@
     }
 }
 
+// Основная компонента проектов. Состоит из меню для управления и таблицы для вывода данных.
 let activeProjects = {
     rows: [
     {
@@ -31,12 +32,13 @@ let activeProjects = {
                 }
             },
 
-            {
-                view: 'button', id: 'completeButton', value: 'Завершённые проекты', autowidth: true, 
-                on: {
-                    'onItemClick': completedProject
-                }
-            }
+            // Потенциальная кнопка для завершения проекта, перенесения его в отдельную таблицу с возможностью дальнейшего просмотра информации по проекту
+            // {
+            //     view: 'button', id: 'completeButton', value: 'Завершённые проекты', autowidth: true, 
+            //     on: {
+            //         'onItemClick': completedProject
+            //     }
+            // }
         ]
     }, 
         {
@@ -46,7 +48,8 @@ let activeProjects = {
             scroll: 'y',
             select: true,
             autoConfig: true,
-            data: projects,
+            url: "objProjects.html",
+            //data: projects,
             columns: [
                 { id: 'projectName', header: 'Название проекта', fillspace: true },
                 { id: 'date', header: 'Дата создания', fillspace: true }
@@ -58,6 +61,7 @@ let activeProjects = {
     ]
 };
 
+// Функция для добавления нового проекта. При вызове появляется всплывающее окно с формой для ввода данных внутри.
 function addProject() {
     webix.ui({
         view: 'popup',
@@ -114,6 +118,7 @@ function addProject() {
 
 }
 
+// Удаление проекта. Для вызова нужно щёлкнуть на нужный проект, после этого нажать кнопку "Удалить проект"
 function deleteProject() {
     if ($$('tableActiveProjects').getSelectedId() !== undefined) {
     webix.confirm({
@@ -137,39 +142,40 @@ function deleteProject() {
     }
 }
 
-function completedProject() {
-    webix.ui({
-        view: 'popup',
-        id: 'completeProjects',
-        position: 'center',
-        body: {
-            rows: [
-                {
-                view: 'datatable',
-                id: 'completedProject',
-                scroll: 'y',
-                autoConfig: true,
-                data: complitedProjects,
-                columns: [
-                    { id: 'projectName', header: 'Название проекта', fillspace: true },
-                    { id: 'date', header: 'Дата создания', fillspace: true }
-                ],
-                },
+// Потенциальный функционал для отслеживания уже завершённых проектов
+// function completedProject() {
+//     webix.ui({
+//         view: 'popup',
+//         id: 'completeProjects',
+//         position: 'center',
+//         body: {
+//             rows: [
+//                 {
+//                 view: 'datatable',
+//                 id: 'completedProject',
+//                 scroll: 'y',
+//                 autoConfig: true,
+//                 data: complitedProjects,
+//                 columns: [
+//                     { id: 'projectName', header: 'Название проекта', fillspace: true },
+//                     { id: 'date', header: 'Дата создания', fillspace: true }
+//                 ],
+//                 },
 
-                {
-                view: 'button', 
-                id: 'canselWindowsCompletedProject', 
-                value: 'Закрыть', 
-                css: 'webix_primary', 
-                inputWidth: 300,
-                on: {
-                    'onItemClick': function () {
-                        $$('completeProjects').hide();
-                        }
-                    }
-                }
-            ]
-        }
-    }).show();
-}
+//                 {
+//                 view: 'button', 
+//                 id: 'canselWindowsCompletedProject', 
+//                 value: 'Закрыть', 
+//                 css: 'webix_primary', 
+//                 inputWidth: 300,
+//                 on: {
+//                     'onItemClick': function () {
+//                         $$('completeProjects').hide();
+//                         }
+//                     }
+//                 }
+//             ]
+//         }
+//     }).show();
+// }
 </script>
