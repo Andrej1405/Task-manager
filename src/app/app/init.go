@@ -2,61 +2,7 @@ package app
 
 import (
 	"github.com/revel/revel"
-	"database/sql"
-	_ "github.com/lib/pq"
-	"fmt"
 )
-
-type project struct {
-	id int
-	projectname string
-	date string
-}
-
-// type employee struct {
-// 	id int
-// 	surname string
-// 	name string
-// 	position string
-// }
-	
-// type status struct {
-// 	id int
-// 	namestatus string
-// }
-
-var Db *sql.DB
-
-func InitDB() (err error) {
-	connect := "user=postgres password=1111 dbname=db_taskManager sslmode=disable"
-
-	Db, err := sql.Open("postgres", connect)
-	if err != nil {
-		panic(err)
-	}
-	defer Db.Close()
-	fmt.Println("DB Connected", Db)
-
-rows, err := Db.Query("select * from projects")
-    if err != nil {
-        panic(err)
-    }
-    defer rows.Close()
-
-	projects := []project{}
-
-	for rows.Next() {
-		p := project{}
-		
-        err := rows.Scan(&p.id, &p.projectname, &p.date)
-        if err != nil{
-            panic(err)
-		}
-		
-        projects = append(projects, p)
-    }
-	return
-}
 
 var (
 	// AppVersion revel app version (ldflags)
@@ -83,9 +29,6 @@ func init() {
 		revel.BeforeAfterFilter,       // Call the before and after filter functions
 		revel.ActionInvoker,           // Invoke the action.
 	}
-
-	InitDB()
-
 	// Register startup functions with OnAppStart
 	// revel.DevMode and revel.RunMode only work inside of OnAppStart. See Example Startup Script
 	// ( order dependent )
