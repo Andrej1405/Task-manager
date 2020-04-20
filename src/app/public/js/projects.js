@@ -1,16 +1,43 @@
 class Project {
     constructor(dataProject) {
-        if (projects.length == 0) {
-            this.id = 1;
+        if (massProjects.length == 0) {
+            this.Id = 1;
         } else {
-            this.id = projects[projects.length - 1].id + 1;
+            this.Id = massProjects[massProjects.length - 1].Id + 1;
         }
 
-        this.projectName = dataProject.projectName;
-        this.date = dataProject.date;
+        this.Name = dataProject.Name;
+        this.Date = dataProject.Date;
         this.tasks = [];
     }
 }
+
+let massProjects = [],
+    requestProjects = new XMLHttpRequest();
+    
+
+function xhrGetProjects() {
+    requestProjects.open('GET', 'getProject');
+
+    requestProjects.onload = () => {
+        try {
+            let jsonProjects = JSON.parse(requestProjects.responseText);
+
+            for (let i = 0; i < jsonProjects.length; i++) {
+                massProjects.push(jsonProjects[i]);
+                $$('tableActiveProjects').add(massProjects[i]);
+            }
+        } catch (err) {
+            new Error(err);
+        }
+    };
+
+    requestProjects.send();
+    console.log(massProjects);
+    return massProjects;
+}
+
+
 
 // Основная компонента проектов. Состоит из меню для управления и таблицы для вывода данных.
 let activeProjects = {
@@ -47,11 +74,7 @@ let activeProjects = {
             scroll: 'y',
             select: true,
             autoConfig: true,
-            // url: function(params) {
-            //     this.clearAll();
-            //     return webix.ajax('public/json/1.json');
-            // },
-            // data: webix.ajax('public/json/1.json').then(function(data) {
+            // data: webix.ajax('project').then(function(data) {
             //     this.ClearAll();
             //     return data = data.json();
             // }),
@@ -65,8 +88,9 @@ let activeProjects = {
             //     }
             // },
             // url: function(params) {
-            //     return webix.ajax('../app/controllers/project.go');
+            //     return webix.ajax('getProject');
             // },
+            data: xhrGetProjects(),
             columns: [
                 { id: 'Name', header: 'Название проекта', fillspace: true },
                 { id: 'Date', header: 'Дата создания', fillspace: true }
@@ -89,8 +113,8 @@ function addProject() {
             id: 'newProject',
             width: 300,
             elements: [
-                { view: 'text', label: 'Проект', name: 'projectName', validate: webix.rules.isNotEmpty },
-                { view: 'text', label: 'Создан', labelWidth: 81, name: 'date', validate: webix.rules.isNumber },
+                { view: 'text', label: 'Проект', name: 'Name', validate: webix.rules.isNotEmpty },
+                { view: 'text', label: 'Создан', labelWidth: 81, name: 'Date', validate: webix.rules.isNumber },
                 { margin: 5, cols: [
                 { view: 'button', value: 'Создать' , minWidth: 65, css: 'webix_primary', click: addNewProject },
                 { view: 'button', value: 'Отмена', minWidth: 65, click: canselAddProject }
@@ -109,15 +133,15 @@ function addProject() {
         if ( $$('newProject').validate() ) {
             let dataProject = $$('newProject').getValues();
 
-            for (let i = 0; i < projects.length; i++) {
-                if (dataProject.projectName == projects[i].projectName) {
+            for (let i = 0; i < massProjects.length; i++) {
+                if (dataProject.Name == massProjects[i].Name) {
                     webix.message('Такой проект уже существует');
                     return;
                 }
             }
 
             const project = new Project(dataProject);
-            projects.push(project);
+            massProjects.push(project);
             
             $$('tableActiveProjects').add(project);
             webix.message('Новый проект создан');
@@ -143,13 +167,13 @@ function deleteProject() {
             text: 'Уверены, что хотите удалить проект?'
         }).then( () => {
             let dataProject = $$('tableActiveProjects').getSelectedId(),
-            idProject = dataProject.id;
+            idProject = dataProject.Id;
 
-            for (let i = 0; i < projects.length; i++) {
-                if ( projects[i].id == idProject ) {
-                    let deletProject = Object.assign({}, projects[i]);
-                    deletedProject.push(deletProject);
-                    projects.splice(i, 1);
+            for ( let i = 0; i < massProjects.length; i++ ) {
+                if ( massProjects[i].Id == IdProject ) {
+                    let deleteProject = Object.assign({}, massProjects[i]);
+                    deletedProject.push(deleteProject);
+                    massProjects.splice(i, 1);
                 }
             }
 
@@ -174,8 +198,8 @@ function deleteProject() {
 //                 autoConfig: true,
 //                 data: complitedProjects,
 //                 columns: [
-//                     { id: 'projectName', header: 'Название проекта', fillspace: true },
-//                     { id: 'date', header: 'Дата создания', fillspace: true }
+//                     { id: 'Name', header: 'Название проекта', fillspace: true },
+//                     { id: 'Date', header: 'Дата создания', fillspace: true }
 //                 ],
 //                 },
 

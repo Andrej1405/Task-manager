@@ -1,15 +1,63 @@
 class Employee {
     constructor(dataEmployee) {
-        if (employees.length == 0) {
-            this.id = 1;
+        if ( massEmployees.length == 0 ) {
+            this.Id = 1;
         } else {
-            this.id = employees[employees.length - 1].id + 1;
+            this.Id = massEmployees[massEmployees.length - 1].Id + 1;
         }
-        this.name = dataEmployee.name;
-        this.surname = dataEmployee.surname;
-        this.position = dataEmployee.position;
+        this.Surname = dataEmployee.Surname;
+        this.Name = dataEmployee.Name;
+        this.Position = dataEmployee.Position;
     }
 }
+
+let massEmployees = [];
+
+const xhrRequestEmployee = {
+    xhrGetEmployees: function() {
+        webix.ajax().get('getEmployee').then(function(data) {
+            data = data.json();
+            for (let i = 0; i < data.length; i++) {
+                massEmployees.push(data[i]);
+                $$('tableActiveEmployees').add(massEmployees[i]);
+            }
+        });
+    },
+
+    xhrUpdateEmployees: function(valueForm) {
+        webix.ajax().post('/employee/:id/update', valueForm).then(function(){
+            for ( let i = 0; i < massEmployees.length; i++ ) {
+                if (massEmployees[i].Id == valueForm.Id) {
+                    massEmployees[i].Surname = valueForm.Surname;
+                    massEmployees[i].Name = valueForm.Name;
+                    massEmployees[i].Position = valueForm.Position;
+                    return;
+                }
+            }
+        });
+    },
+
+    xhrAddEmployees: function(valueForm) {
+        webix.ajax().post('/employee/add', valueForm).then(function(){
+            const newEmploy = new Employee(valueForm);        
+            massEmployees.push(newEmploy);
+
+            $$('tableActiveEmployees').add(newEmploy);
+            return;
+        });
+    },
+
+    xhrDelEmployees: function(valueForm, idEmployee) {
+        webix.ajax().del('/employee/:id/delete', { Id : "11" }).then(function() {
+            for ( let i = 0; i < massEmployees.length; i++ ) {
+                if (massEmployees[i].Id == idEmployee) {
+                    massEmployees.splice(i, 1);
+                }
+            }
+            $$('tableActiveEmployees').remove(Id);
+        });
+    }
+};
 
 // Блок сайта, отвечающий за представление списка сотрудников. Состоит из меню и таблицы
 let activeEmployees = {
@@ -33,14 +81,10 @@ let activeEmployees = {
         select: true,
         columnWidth: 470,
         autoConfig: true,
-        //data: employees,
-        // url: webix.ajax("controllers/project.go", function(text, data){
-        //     table.parse(data.json());
-        //     }),
         columns: [
-            { id: 'surname', header: 'Фамилия', fillspace: true },
-            { id: 'name', header: 'Имя', fillspace: true },
-            { id: 'position', header: 'Должность', fillspace: true }
+            { id: 'Surname', header: 'Фамилия', fillspace: true },
+            { id: 'Name', header: 'Имя', fillspace: true },
+            { id: 'Position', header: 'Должность', fillspace: true }
         ],
         on: {
                 'onItemDblClick': showEmployeeCard
@@ -60,9 +104,9 @@ function addNewEmployee() {
         id: 'newEmployee',
         width: 300,
         elements: [
-            { view: 'text', label: 'Фамилия', name: 'surname', validate: webix.rules.isNotEmpty },
-            { view: 'text', label: 'Имя', name: 'name', validate: webix.rules.isNotEmpty },
-            { view: 'text', label: 'Должность', labelWidth: 81, name: 'position', validate: webix.rules.isNotEmpty },
+            { view: 'text', label: 'Фамилия', name: 'Surname', validate: webix.rules.isNotEmpty },
+            { view: 'text', label: 'Имя', name: 'Name', validate: webix.rules.isNotEmpty },
+            { view: 'text', label: 'Должность', labelWidth: 81, name: 'Position', validate: webix.rules.isNotEmpty },
             { margin: 5, cols: [
             { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: addEmployee},
             { view: 'button', value: 'Отменить', minWidth: 65, click: canselEmployee }
@@ -82,18 +126,15 @@ function addNewEmployee() {
         if ( $$('newEmployee').validate() ) {
             let dataEmployee = $$('newEmployee').getValues();
 
-            for (let i = 0; i < employees.length; i++) {
-                if ( (employees[i].name == dataEmployee.name) && (employees[i].surname == dataEmployee.surname) ) {
+            for ( let i = 0; i < massEmployees.length; i++ ) {
+                if ( (massEmployees[i].Name == dataEmployee.Name) && (massEmployees[i].Surname == dataEmployee.Surname) ) {
                     webix.message('Такой сотрудник уже создан');
                     //$$('newEmployee').clear();
                     return;
                 }
             }
+            xhrRequestEmployee.xhrAddEmployees(dataEmployee);
 
-            const newEmploy = new Employee(dataEmployee);        
-            employees.push(newEmploy);
-
-            $$('tableActiveEmployees').add(newEmploy);
             webix.message('Сотрудник добавлен');
             $$('newEmployee').clear();
             $$('newEmployees').hide();
@@ -119,9 +160,9 @@ function showEmployeeCard(id) {
             id: 'cardEmployee',
             width: 330,
             elements: [
-                { view: 'text', label: 'Фамилия', name: 'surname', validate: webix.rules.isNotEmpty },
-                { view: 'text', label: 'Имя', name: 'name', validate: webix.rules.isNotEmpty },
-                { view: 'text', label: 'Должность', labelWidth: 81, name: 'position', validate: webix.rules.isNotEmpty },
+                { view: 'text', label: 'Фамилия', name: 'Surname', validate: webix.rules.isNotEmpty },
+                { view: 'text', label: 'Имя', name: 'Name', validate: webix.rules.isNotEmpty },
+                { view: 'text', label: 'Должность', labelWidth: 81, name: 'Position', validate: webix.rules.isNotEmpty },
                 { margin: 5, cols: [
                 { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: saveEmployee },
                 { view: 'button', value: 'Удалить сотрудника' , minWidth: 65, css: 'webix_primary', height: 45, click: deleteEmployee}
@@ -145,16 +186,11 @@ function showEmployeeCard(id) {
             text: 'Уверены, что хотите удалить сотрудника?'
         }).then( () => {
             let dataEmployee = $$('cardEmployee').getValues();
-            idEmployee = dataEmployee.id;
+            idEmployee = dataEmployee.Id;
 
-            for (let i = 0; i < employees.length; i++) {
-                if (employees[i].id == idEmployee) {
-                    employees.splice(i, 1);
-                }
-            }
+            xhrRequestEmployee.xhrDelEmployees(dataEmployee, idEmployee);
 
             webix.message('Сотрудник удалён');
-            $$('tableActiveEmployees').remove(id)
             $$('cardEmployee').clear();
             $$('editEmployee').hide();
             
@@ -162,12 +198,22 @@ function showEmployeeCard(id) {
     }
 
     function saveEmployee() {
-        if ($$('cardEmployee').validate()) {
+        if ( $$('cardEmployee').validate()) {
             let newValues = $$('cardEmployee').getValues();
-        
+
+            if ((values.Surname == newValues.Surname) && (values.Name == newValues.Name) && (values.Position == newValues.Position)) {
+                $$('cardEmployee').clear();
+                $$('editEmployee').hide();
+                return;
+            }
+            
+            xhrRequestEmployee.xhrUpdateEmployees(newValues);
+
             $$('tableActiveEmployees').updateItem(newValues.id, newValues);
             $$('cardEmployee').clear();
             $$('editEmployee').hide();
         }
     }             
 }
+
+document.addEventListener('DOMContentLoaded', xhrRequestEmployee.xhrGetEmployees);
