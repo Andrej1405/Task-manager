@@ -1,10 +1,6 @@
 class Employee {
-    constructor(dataEmployee) {
-        if ( massEmployees.length == 0 ) {
-            this.Id = 1;
-        } else {
-            this.Id = massEmployees[massEmployees.length - 1].Id + 1;
-        }
+    constructor(id, dataEmployee) {
+        this.Id = id;
         this.Surname = dataEmployee.Surname;
         this.Name = dataEmployee.Name;
         this.Position = dataEmployee.Position;
@@ -17,10 +13,36 @@ const xhrRequestEmployee = {
     xhrGetEmployees: function() {
         webix.ajax().get('getEmployee').then(function(data) {
             data = data.json();
-            for (let i = 0; i < data.length; i++) {
+            for ( let i = 0; i < data.length; i++ ) {
                 massEmployees.push(data[i]);
                 $$('tableActiveEmployees').add(massEmployees[i]);
             }
+        });
+    },
+
+    xhrAddEmployees: function(valueForm) {
+        webix.ajax().post('/employee/add', valueForm).then(function(data){
+            let id = data.json();
+            const newEmploy = new Employee(id, valueForm);
+
+            massEmployees.push(newEmploy);
+            $$('tableActiveEmployees').add(newEmploy);
+            webix.message('Сотрудник добавлен');
+            return;
+        });
+    },
+
+    xhrDelEmployees: function(id, idEmployee) {
+        idEmployee = {Id: idEmployee};
+        webix.ajax().post('/employee/:id/delete', idEmployee ).then(function() {
+            for ( let i = 0; i < massEmployees.length; i++ ) {
+                if (massEmployees[i].Id == idEmployee.Id) {
+                    massEmployees.splice(i, 1);
+                }
+            }
+            webix.message('Сотрудник удалён');
+            $$('tableActiveEmployees').remove(id);
+            console.log(massEmployees)
         });
     },
 
@@ -31,32 +53,12 @@ const xhrRequestEmployee = {
                     massEmployees[i].Surname = valueForm.Surname;
                     massEmployees[i].Name = valueForm.Name;
                     massEmployees[i].Position = valueForm.Position;
-                    return;
                 }
             }
-        });
-    },
-
-    xhrAddEmployees: function(valueForm) {
-        webix.ajax().post('/employee/add', valueForm).then(function(){
-            const newEmploy = new Employee(valueForm);        
-            massEmployees.push(newEmploy);
-
-            $$('tableActiveEmployees').add(newEmploy);
+            $$('tableActiveEmployees').updateItem(newValues.id, newValues);
             return;
         });
     },
-
-    xhrDelEmployees: function(valueForm, idEmployee) {
-        webix.ajax().del('/employee/:id/delete', { Id : "11" }).then(function() {
-            for ( let i = 0; i < massEmployees.length; i++ ) {
-                if (massEmployees[i].Id == idEmployee) {
-                    massEmployees.splice(i, 1);
-                }
-            }
-            $$('tableActiveEmployees').remove(Id);
-        });
-    }
 };
 
 // Блок сайта, отвечающий за представление списка сотрудников. Состоит из меню и таблицы
@@ -135,7 +137,6 @@ function addNewEmployee() {
             }
             xhrRequestEmployee.xhrAddEmployees(dataEmployee);
 
-            webix.message('Сотрудник добавлен');
             $$('newEmployee').clear();
             $$('newEmployees').hide();
             return;
@@ -180,7 +181,7 @@ function showEmployeeCard(id) {
     let values = $$('tableActiveEmployees').getItem(id);
     $$('cardEmployee').setValues(values);
 
-        function deleteEmployee() {
+    function deleteEmployee() {
         webix.confirm({
             title: 'Сотрудник будет удалён',
             text: 'Уверены, что хотите удалить сотрудника?'
@@ -188,9 +189,8 @@ function showEmployeeCard(id) {
             let dataEmployee = $$('cardEmployee').getValues();
             idEmployee = dataEmployee.Id;
 
-            xhrRequestEmployee.xhrDelEmployees(dataEmployee, idEmployee);
+            xhrRequestEmployee.xhrDelEmployees(id, idEmployee);
 
-            webix.message('Сотрудник удалён');
             $$('cardEmployee').clear();
             $$('editEmployee').hide();
             
@@ -209,7 +209,6 @@ function showEmployeeCard(id) {
             
             xhrRequestEmployee.xhrUpdateEmployees(newValues);
 
-            $$('tableActiveEmployees').updateItem(newValues.id, newValues);
             $$('cardEmployee').clear();
             $$('editEmployee').hide();
         }

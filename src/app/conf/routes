@@ -10,11 +10,13 @@ module:testrunner
 GET     /                                      App.Index
 
 GET     /getProject                            ControllerProject.GetProject
+POST    /project/add                           ControllerProject.AddNewProject
+POST    /project/:id/delete                    ControllerProject.DeleteProject
 
 GET     /getEmployee                           ControllerEmployee.GetEmployee
 POST    /employee/add                          ControllerEmployee.AddNewEmployee
 POST    /employee/:id/update                   ControllerEmployee.UpdateEmployee
-DELETE  /employee/:id/delete                   ControllerEmployee.DeleteUmployee
+POST    /employee/:id/delete                   ControllerEmployee.DeleteEmployee
 
 # Map static resources from the /app/public folder to the /public path
 GET     /public/*filepath                       Static.Serve("public")

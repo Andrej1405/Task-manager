@@ -10,26 +10,26 @@ function showProject() {
         tasksOfProject,
         number;
 
-    for (let i = 0; i < projects.length; i++) {
-        if (projects[i].id == idActiveProject) {
-            if (projects[i].tasks.length == 0) {
+    for ( let i = 0; i < massProjects.length; i++ ) {
+        if (massProjects[i].id == idActiveProject) {
+            if (massProjects[i].tasks.length == 0) {
                 number = 0;
                 break;
             } else {
-                let numberTask = projects[i].tasks;
+                let numberTask = massProjects[i].tasks;
                 number = numberTask[numberTask.length - 1].id;
             }
         }
     }
     
-    for (let i = 0; i < projects.length; i++) {
-        if (projects[i].id == idActiveProject) {
-            tasksOfProject = projects[i].tasks;
+    for ( let i = 0; i < massProjects.length; i++ ) {
+        if (massProjects[i].id == idActiveProject) {
+            tasksOfProject = massProjects[i].tasks;
             break;
         }
     }
     
-    for (let i = 0; i < employees.length; i++) {
+    for ( let i = 0; i < employees.length; i++ ) {
         employeesInvolved[employees[i].id] = `${employees[i].surname} ${employees[i].name}`;
     }
 

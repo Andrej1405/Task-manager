@@ -3,7 +3,6 @@ package controllers
 import (
 	entities "app/app/model"
 	"app/app/server"
-	"fmt"
 
 	"github.com/revel/revel"
 )
@@ -34,18 +33,15 @@ func (c ControllerEmployee) AddNewEmployee(Surname, Name, Position string) revel
 
 	employee := entities.NewEmployee(Surname, Name, Position)
 
-	err = entities.EmployeeAdd(employee)
+	// err = entities.EmployeeAdd(employee)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	id, err := entities.EmployeeAdd(employee)
 	if err != nil {
 		panic(err)
 	}
-
-	//возвращаем текстовое подтверждение об успешном выполнении операции
-	// err = json.NewEncoder(rw).Encode("Пользователь успешно добавлен!")
-	// if err != nil {
-	// 	http.Error(rw, err.Error(), 400)
-	// 	return
-	// }
-	return c.Render()
+	return c.RenderJSON(id)
 }
 
 func (c ControllerEmployee) UpdateEmployee(Id, Surname, Name, Position string) revel.Result {
@@ -70,17 +66,11 @@ func (c ControllerEmployee) UpdateEmployee(Id, Surname, Name, Position string) r
 	return c.Render()
 }
 
-func (c ControllerEmployee) DeleteUmployee(Id, Surname, Name, Position string) revel.Result {
+func (c ControllerEmployee) DeleteEmployee(Id string) revel.Result {
 	err := server.InitDB()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(Id, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-
-	// employee, err := entities.GetEmployeeById(Id)
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	err = entities.EmployeeDelete(Id)
 	if err != nil {
