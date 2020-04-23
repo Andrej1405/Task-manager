@@ -41,26 +41,26 @@ func (c ControllerProject) AddNewProject(Name, Date string) revel.Result {
 	return c.RenderJSON(id)
 }
 
-// func (c ControllerProject) UpdateProject(Id, Name, Date string) revel.Result {
-// 	err := server.InitDB()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func (c ControllerProject) UpdateProject(Id, Name, Date string) revel.Result {
+	err := server.InitDB()
+	if err != nil {
+		panic(err)
+	}
 
-// 	project, err := entities.GetProjectById(Id)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	project, err := entities.GetProjectById(Id)
+	if err != nil {
+		panic(err)
+	}
 
-// 	project.Name = Name
-// 	project.Date = Date
+	project.Name = Name
+	project.Date = Date
 
-// 	err = entities.ProjectUpdate(&project)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	return c.Render()
-// }
+	err = entities.ProjectUpdate(&project)
+	if err != nil {
+		panic(err)
+	}
+	return c.Render()
+}
 
 func (c ControllerProject) DeleteProject(Id string) revel.Result {
 	err := server.InitDB()

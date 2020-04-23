@@ -1,132 +1,283 @@
 class Task {
-    constructor() {
-
+    constructor(idTask, dataTask) {
+        this.Id_project = dataTask.Id_project;
+        this.IdTask = idTask;
+        this.Task = dataTask.Task;
+        this.DesignatedEmployee = dataTask.DesignatedEmployee;
+        this.Hours = dataTask.Hours;
+        this.HoursSpent = dataTask.HoursSpent;
+        this.StatusTask = dataTask.StatusTask;
     }
 }
 
-function showProject() {
-    let employeesInvolved = {},
-        idActiveProject = $$('tableActiveProjects').getSelectedId().id,
-        tasksOfProject,
-        number;
+let massStatus = [
+    {Id: 1, value: 'Назначено'},
+    {Id: 2, value: 'В работе'},
+    {Id: 3, value: 'Выполнено'},
+    {Id: 4, value: 'Отменено'}
+],
+    massTasks = [];
 
-    for ( let i = 0; i < massProjects.length; i++ ) {
-        if (massProjects[i].id == idActiveProject) {
-            if (massProjects[i].tasks.length == 0) {
-                number = 0;
-                break;
-            } else {
-                let numberTask = massProjects[i].tasks;
-                number = numberTask[numberTask.length - 1].id;
-            }
-        }
-    }
-    
-    for ( let i = 0; i < massProjects.length; i++ ) {
-        if (massProjects[i].id == idActiveProject) {
-            tasksOfProject = massProjects[i].tasks;
-            break;
-        }
-    }
-    
-    for ( let i = 0; i < employees.length; i++ ) {
-        employeesInvolved[employees[i].id] = `${employees[i].surname} ${employees[i].name}`;
-    }
-
-    function addTask() {
-        ++number;
-        $$('tableTasksProject').add({'id' : number});
-    }
-
-    // function deleteTask() {
-    //     let index = $$('tableTasksProject').getSelectedId();
-    //     $$('tableTasksProject').remove(index);
-    // }
-
-    function updateTasks() {
-        for (let i = 0; i < projects.length; i++) {
-            if (projects[i].id == idActiveProject) {
-                projects[i].tasks = [];
-                let dataTasks = $$('tableTasksProject').data.pull;
-
-                for (let obj in dataTasks) {
-                    projects[i].tasks.push(dataTasks[obj]);
+const xhrRequestTask = {
+    xhrGetTask: function() {
+        webix.ajax().get('getTask').then(function(data) {
+            data = data.json();
+            for ( let i = 0; i < data.length; i++ ) {
+                for ( let j = 0; j < massEmployees.length; j++ ) {
+                    if (massEmployees[j].Id == data[i].DesignatedEmployee) {
+                        data[i].DesignatedEmployee = `${massEmployees[j].Surname} ${massEmployees[j].Name}`;
+                    }
                 }
-                break;
+                let task = new Task(data[i].IdTask, data[i]);
+                massTasks.push(task);
+            }
+            return;
+        });
+    },
+
+    xhrAddTask: function(idActiveProject, valueForm) {
+        let id_project = idActiveProject;
+        valueForm.Id_project = id_project;
+
+        for ( let i = 0; i < massEmployees.length; i++ ) {
+            if( valueForm.DesignatedEmployee == `${massEmployees[i].Surname} ${massEmployees[i].Name}`) {
+                valueForm.DesignatedEmployee = massEmployees[i].Id;
             }
         }
-    }
 
-    // function completeProject() {
-    //     webix.confirm({
-    //         title: 'Закрытие проекта',
-    //         text: 'Уверены, что хотите завершить проект?'
-    //     }).then( () => {
+        webix.ajax().post('/task/add', valueForm).then(function(id) {
+            for ( let i = 0; i < massEmployees.length; i++ ) {
+                if( valueForm.DesignatedEmployee == massEmployees[i].Id) {
+                    valueForm.DesignatedEmployee = `${massEmployees[i].Surname} ${massEmployees[i].Name}`;
+                }
+            }
 
-    //         for ( let i = 0; i < projects.length; i++ ) {
-    //             if ( projects[i].id == idActiveProject ) {
-    //                 let complProject = Object.assign({}, projects[i]);
-    //                 complitedProjects.push(complProject);
-    //                 projects.splice(i, 1);
-    //             }
-    //         }
+            let idTask = id.json();
+            
+            let task = new Task(idTask, valueForm);
+            massTasks.push(task);
 
-    //         $$('tableActiveProjects').remove(idActiveProject);
-    //         $$('tasksProject').hide();
-    //         webix.message('Проект закрыт');
-    //     });
-    // }
+            $$('tableTasksProject').add(task);
+            
+            webix.message('Задача добавлена');
+            return;
+        });
+    },
 
-    function canselTasks() {
-        $$('tasksProject').hide();
-        return;
-    }
+    // xhrDelTask: function() {
+    
+    // },
 
+    xhrUpdateTask: function(valueForm) {
+        for ( let i = 0; i < massEmployees.length; i++ ) {
+            if( valueForm.DesignatedEmployee == `${massEmployees[i].Surname} ${massEmployees[i].Name}`) {
+                valueForm.DesignatedEmployee = massEmployees[i].Id;
+            }
+        }
+        console.log(valueForm)
+        webix.ajax().post('/task/:id/update', valueForm).then(function(data) {
+            for ( let i = 0; i < massEmployees.length; i++ ) {
+                if( valueForm.DesignatedEmployee == massEmployees[i].Id) {
+                    valueForm.DesignatedEmployee = `${massEmployees[i].Surname} ${massEmployees[i].Name}`;
+                }
+            }
+            for ( let i = 0; i < massTasks.length; i++ ) {
+                if (massTasks[i].IdTask == valueForm.IdTask) {
+                    massTasks[i].Task = valueForm.Task;
+                    massTasks[i].DesignatedEmployee = valueForm.DesignatedEmployee;
+                    massTasks[i].Hours = valueForm.Hours;
+                    massTasks[i].HoursSpent = valueForm.HoursSpent;
+                    massTasks[i].StatusTask = valueForm.StatusTask;
+                }
+            }
+            $$('tableTasksProject').updateItem(valueForm.id, valueForm);
+            return;
+        });
+    },
+};
+
+function showProject() {
     webix.ui({
-        view: 'popup',
+        view: 'window',
+        head: 'Задачи проекта',
         id: 'tasksProject',
-        position: 'center',
+        close: true,
+        fullscreen: true,
         body: {
             rows: [
-                { view:"toolbar", elements:[
-                    { view: 'button', value: 'Добавить задачу', click: addTask, minWidth: 65, css: 'webix_primary' },
-                    //{ view: 'button', value: 'Удалить задачу', click: deleteTask, minWidth: 65, css: 'webix_primary' }
-                ]},
+                {
+                    view: 'datatable',
+                    id: 'tableTasksProject',
+                    select: true,
+                    editable: true,
+                    editaction: 'dblclick',
+                    scroll: 'y',
+                    autoConfig: true,
+                    columns: [
+                        { id: 'Task', header: 'Задача', fillspace: true },
+                        { id: 'DesignatedEmployee', header: 'Назначенный сотрудник', fillspace: true },
+                        { id: 'Hours', header: 'Часы', fillspace: true, },
+                        { id: 'HoursSpent', header: 'Потраченные часы', fillspace: true },
+                        { id: 'StatusTask', header: 'Статус', fillspace: true },
+                        ],
+                        on: {
+                            'onItemDblClick': showTask
+                    },
+
+                },
 
                 {
-                view: 'datatable',
-                id: 'tableTasksProject',
-                select: true,
-                width: 1150,
-                height: 450,
-                editable: true,
-                editaction: 'dblclick',
-                scroll: 'y',
-                autoConfig: true,
-                data: tasksOfProject,
-                columns: [
-                    { id: 'id' },
-                    { id: 'task', header: 'Задача', fillspace: true, editor: 'text' },
-                    { id: 'designatedEmployee', header: 'Назначенный сотрудник', fillspace: true, editor: 'select', options: employeesInvolved },
-                    { id: 'hours', header: 'Часы', fillspace: true, editor: 'text' },
-                    { id: 'hoursSpent', header: 'Потраченные часы', fillspace: true, editor: 'text' },
-                    { id: 'statusTask', header: 'Статус', fillspace: true, editor: 'select', options: status },
-                    //{ id:'', template: "<input class = 'delTask' type = 'button' value = 'Удалить задачу'>", fillspace: true},
-                ],
-                },
-                {
                     cols: [
-                        { view: 'button', value: 'Сохранить' , click: updateTasks, minWidth: 65, css: 'webix_primary' , },
-                        //{ view: 'button', value: 'Завершить проект' , click: completeProject, minWidth: 65, css: 'webix_primary' , },
-                        { view: 'button', value: 'Закрыть' , click: canselTasks, minWidth: 65, css: 'webix_primary'  }
+                        { view: 'button', value: 'Добавить задачу', click: addTask, minWidth: 65, css: 'webix_primary' },
+                        { view: 'button', value: 'Вернуться на главную' , click: canselTasks, minWidth: 65, css: 'webix_primary'  }
                     ]
                 }
             ]
         }
     }).show();
 
-    // $$('tableTasksProject').on_click.delTask = function(e, id) {
-    //     $$('tableTasksProject').remove(id)
-    //     webix.message('Задача удалена');
-    // };
+    const activeProject = $$('tableActiveProjects').getSelectedItem(),
+          idActiveProject = activeProject.Id;
+
+    let massTasksOfProject = [],
+        employeesInvolved = [];
+    
+    for ( let i = 0; i < massEmployees.length; i++ ) {
+        let objEmployee = {};
+
+        objEmployee.Id = massEmployees[i].Id; //?
+        objEmployee.value = `${massEmployees[i].Surname} ${massEmployees[i].Name}`;
+
+        employeesInvolved.push(objEmployee);
+    }
+
+    for ( let i = 0; i < massTasks.length; i++ ) {
+        if (massTasks[i].Id_project == idActiveProject) {
+            massTasksOfProject.push(massTasks[i]);
+            $$('tableTasksProject').add(massTasks[i]);
+        }
+    }
+
+    function canselTasks() {
+        $$('tasksProject').hide();
+        return;
+    }
+    //////////////////////////////////////////////////////////////
+    function addTask() {
+        webix.ui({
+            view: 'window',
+            id: 'addNewTask',
+            head: 'Новая задача',
+            close: true,
+            modal: true,
+            position: 'center',
+            width: 500,
+            body: {
+                view: 'form', 
+                id: 'newTask',
+                elementsConfig: {
+                    labelWidth: 180
+                },
+                elements: [
+                    { view: 'text', label: 'Задача', name: 'Task', validate: webix.rules.isNotEmpty },
+                    { view: 'richselect', label: 'Назначенный сотрудник', name: 'DesignatedEmployee', options: employeesInvolved, validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Часы', name: 'Hours', validate: webix.rules.isNumber },
+                    { view: 'text', label: 'Потраченные часы', name: 'HoursSpent' },
+                    { view: 'richselect', label: 'Статус', name: 'StatusTask', value: 1, options: massStatus },
+                    { margin: 5, cols: [
+                    { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: saveTask},
+                    { view: 'button', value: 'Отменить', minWidth: 65, click: canselSaveTask }
+                ]}
+            ],
+            on: {
+                onValidationError: function (key, obj) {
+                    let textMessage = 'Некорретно введена информация';
+                    webix.message( { type:"error", text: textMessage } );
+                    }
+                }
+            }
+        }).show();
+    
+        
+        
+        function saveTask() {
+            if ( $$('newTask').validate() ) {
+                let dataTask = $$('newTask').getValues();
+                
+                xhrRequestTask.xhrAddTask(idActiveProject, dataTask);
+
+                $$('newTask').clear();
+                $$('addNewTask').hide();
+                return;
+            }
+        }
+    
+        function canselSaveTask() {
+            $$('newTask').clear();
+            $$('addNewTask').hide();
+            return;
+        }
+        
+    }
+    //////////////////////////////////////////////
+    function showTask(id) {
+        webix.ui({
+            view: 'window',
+            id: 'showTask',
+            head: 'Редактирование задачи',
+            close: true,
+            modal: true,
+            width: 500,
+            position: 'center',
+            body: {
+                view: 'form', 
+                id: 'cardTask',
+                elementsConfig: {
+                    labelWidth: 180
+                },
+                elements: [
+                    { view: 'text', label: 'Задача', name: 'Task', validate: webix.rules.isNotEmpty },
+                    { view: 'richselect', label: 'Назначенный сотрудник', name: 'DesignatedEmployee', options: employeesInvolved, validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Часы', name: 'Hours', validate: webix.rules.isNumber },
+                    { view: 'text', label: 'Потраченные часы', name: 'HoursSpent' },
+                    { view: 'richselect', label: 'Статус', name: 'StatusTask', options: massStatus },
+                    { margin: 5, cols: [
+                    { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: saveEditTask},
+                    { view: 'button', value: 'Отменить', minWidth: 65, click: canselEditTask }
+                ]}
+            ],
+                on: {
+                    onValidationError: function (key, obj) {
+                        textMessage = 'Некорретно введена информация';
+                        webix.message( { type:"error", text: textMessage } );
+                        }
+                    }
+            }
+        }).show();
+        
+        let values = $$('tableTasksProject').getItem(id);
+        $$('cardTask').setValues(values);
+
+        function saveEditTask() {
+            if ( $$('cardTask').validate() ) {
+                let dataTask = $$('cardTask').getValues();
+                
+                xhrRequestTask.xhrUpdateTask(dataTask);
+
+                $$('cardTask').clear();
+                $$('showTask').hide();
+                return;
+            }
+            return;
+        }
+    
+        function canselEditTask() {
+            $$('showTask').hide();
+            return;
+        }
+    }
 }
+//?
+document.addEventListener('DOMContentLoaded', () => setTimeout(function() {
+    xhrRequestTask.xhrGetTask(); 
+}, 300));

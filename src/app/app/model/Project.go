@@ -52,10 +52,10 @@ func ProjectAdd(project *Project) (id int, err error) {
 	return id, err
 }
 
-// func ProjectUpdate(project *Project) (err error) {
-// 	_, err = server.Db.Exec(`UPDATE project SET name = $1, date = $2 WHERE id = $3`, project.Name, project.Date, project.Id)
-// 	return
-// }
+func ProjectUpdate(project *Project) (err error) {
+	_, err = server.Db.Exec(`UPDATE projects SET name = $1, date = $2 WHERE id = $3`, project.Name, project.Date, project.Id)
+	return
+}
 
 func ProjectDelete(projectId string) (err error) {
 	_, err = server.Db.Exec(`DELETE FROM projects WHERE id = $1`, projectId)

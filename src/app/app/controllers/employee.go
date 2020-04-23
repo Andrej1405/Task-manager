@@ -33,10 +33,6 @@ func (c ControllerEmployee) AddNewEmployee(Surname, Name, Position string) revel
 
 	employee := entities.NewEmployee(Surname, Name, Position)
 
-	// err = entities.EmployeeAdd(employee)
-	// if err != nil {
-	// 	panic(err)
-	// }
 	id, err := entities.EmployeeAdd(employee)
 	if err != nil {
 		panic(err)

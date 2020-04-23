@@ -46,10 +46,6 @@ func NewEmployee(Surname, Name, Position string) *Employee {
 }
 
 func EmployeeAdd(employee *Employee) (id int, err error) {
-	// _, err = server.Db.Exec(`INSERT INTO employees (surname, name, position) VALUES ($1, $2, $3)`, employee.Surname, employee.Name, employee.Position)
-	// if err != nil {
-	// 	panic(err)
-	// }
 	server.Db.QueryRow(`INSERT INTO employees (surname, name, position) VALUES ($1, $2, $3) returning id`, employee.Surname, employee.Name, employee.Position).Scan(&id)
 	if err != nil {
 		panic(err)

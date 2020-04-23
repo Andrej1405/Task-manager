@@ -12,11 +12,16 @@ GET     /                                      App.Index
 GET     /getProject                            ControllerProject.GetProject
 POST    /project/add                           ControllerProject.AddNewProject
 POST    /project/:id/delete                    ControllerProject.DeleteProject
+POST    /project/:id/update                    ControllerProject.UpdateProject
 
 GET     /getEmployee                           ControllerEmployee.GetEmployee
 POST    /employee/add                          ControllerEmployee.AddNewEmployee
 POST    /employee/:id/update                   ControllerEmployee.UpdateEmployee
 POST    /employee/:id/delete                   ControllerEmployee.DeleteEmployee
+
+GET     /getTask                               ControllerTask.GetTask
+POST    /task/add                              ControllerTask.AddNewTask
+POST    /task/:id/update                       ControllerTask.UpdateTask
 
 # Map static resources from the /app/public folder to the /public path
 GET     /public/*filepath                       Static.Serve("public")
