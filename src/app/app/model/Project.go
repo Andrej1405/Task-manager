@@ -2,27 +2,27 @@ package entities
 
 import (
 	"app/app/server"
+	"fmt"
 )
 
 type Project struct {
 	Id   int
 	Name string
-	Date string
 }
 
 func GetAllProjects() (projects []Project, err error) {
 	query := `SELECT * FROM projects`
 	rows, err := server.Db.Query(query)
 	if err != nil {
-		return projects, err
+		fmt.Println(err)
 	}
 	defer rows.Close()
 
 	project := Project{}
 	for rows.Next() {
-		err = rows.Scan(&project.Id, &project.Name, &project.Date)
+		err = rows.Scan(&project.Id, &project.Name)
 		if err != nil {
-			return projects, err
+			fmt.Println(err)
 		}
 		projects = append(projects, project)
 	}
@@ -31,36 +31,50 @@ func GetAllProjects() (projects []Project, err error) {
 }
 
 func GetProjectById(projectId string) (project Project, err error) {
-	row := server.Db.QueryRow(`SELECT * FROM projects WHERE id = $1`, projectId)
+	query := `SELECT * FROM projects WHERE id = $1`
+	row := server.Db.QueryRow(query, projectId)
+
 	project = Project{}
-	err = row.Scan(&project.Id, &project.Name, &project.Date)
+
+	err = row.Scan(&project.Id, &project.Name)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+
 	return project, err
 }
 
-func NewProject(name, date string) *Project {
-	return &Project{Name: name, Date: date}
+func NewProject(name string) *Project {
+	return &Project{Name: name}
 }
 
 func ProjectAdd(project *Project) (id int, err error) {
-	server.Db.QueryRow(`INSERT INTO projects (name, date) VALUES ($1, $2) returning id`, project.Name, project.Date).Scan(&id)
+	query := `INSERT INTO projects (name) VALUES ($1) returning id`
+
+	server.Db.QueryRow(query, project.Name).Scan(&id)
+
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+
 	return id, err
 }
 
 func ProjectUpdate(project *Project) (err error) {
-	_, err = server.Db.Exec(`UPDATE projects SET name = $1, date = $2 WHERE id = $3`, project.Name, project.Date, project.Id)
+	query := `UPDATE projects SET name = $1 WHERE id = $2`
+
+	_, err = server.Db.Exec(query, project.Name, project.Id)
+
 	return
 }
 
 func ProjectDelete(projectId string) (err error) {
-	_, err = server.Db.Exec(`DELETE FROM projects WHERE id = $1`, projectId)
+	query := `DELETE FROM projects WHERE id = $1`
+	_, err = server.Db.Exec(query, projectId)
+
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+
 	return
 }

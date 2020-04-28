@@ -2,6 +2,7 @@ package entities
 
 import (
 	"app/app/server"
+	"fmt"
 )
 
 type Employee struct {
@@ -15,7 +16,7 @@ func GetAllEmployees() (employees []Employee, err error) {
 	query := `SELECT * FROM employees`
 	rows, err := server.Db.Query(query)
 	if err != nil {
-		return employees, err
+		fmt.Println(err)
 	}
 	defer rows.Close()
 
@@ -23,7 +24,7 @@ func GetAllEmployees() (employees []Employee, err error) {
 	for rows.Next() {
 		err = rows.Scan(&employee.Id, &employee.Surname, &employee.Name, &employee.Position)
 		if err != nil {
-			return employees, err
+			fmt.Println(err)
 		}
 		employees = append(employees, employee)
 	}
@@ -32,12 +33,16 @@ func GetAllEmployees() (employees []Employee, err error) {
 }
 
 func GetEmployeeById(employeeId string) (employee Employee, err error) {
-	row := server.Db.QueryRow(`SELECT * FROM employees WHERE id = $1`, employeeId)
+	query := `SELECT * FROM employees WHERE id = $1`
+	row := server.Db.QueryRow(query, employeeId)
+
 	employee = Employee{}
+
 	err = row.Scan(&employee.Id, &employee.Surname, &employee.Name, &employee.Position)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+
 	return employee, err
 }
 
@@ -46,23 +51,28 @@ func NewEmployee(Surname, Name, Position string) *Employee {
 }
 
 func EmployeeAdd(employee *Employee) (id int, err error) {
-	server.Db.QueryRow(`INSERT INTO employees (surname, name, position) VALUES ($1, $2, $3) returning id`, employee.Surname, employee.Name, employee.Position).Scan(&id)
+	query := `INSERT INTO employees (surname, name, position) VALUES ($1, $2, $3) returning id`
+	server.Db.QueryRow(query, employee.Surname, employee.Name, employee.Position).Scan(&id)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+
 	return id, err
 }
 
 func EmployeeUpdate(employee *Employee) (err error) {
-	_, err = server.Db.Exec(`UPDATE employees SET surname = $1, name = $2, position = $3 WHERE id = $4`, employee.Surname, employee.Name,
+	query := `UPDATE employees SET surname = $1, name = $2, position = $3 WHERE id = $4`
+	_, err = server.Db.Exec(query, employee.Surname, employee.Name,
 		employee.Position, employee.Id)
 	return
 }
 
 func EmployeeDelete(employeeId string) (err error) {
-	_, err = server.Db.Exec(`DELETE FROM employees WHERE id = $1`, employeeId)
+	query := `DELETE FROM employees WHERE id = $1`
+	_, err = server.Db.Exec(query, employeeId)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+
 	return
 }

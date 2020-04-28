@@ -7,16 +7,11 @@ class Task {
         this.Hours = dataTask.Hours;
         this.HoursSpent = dataTask.HoursSpent;
         this.StatusTask = dataTask.StatusTask;
+        this.TaskDescription = dataTask.TaskDescription;
     }
 }
 
-let massStatus = [
-    {Id: 1, value: 'Назначено'},
-    {Id: 2, value: 'В работе'},
-    {Id: 3, value: 'Выполнено'},
-    {Id: 4, value: 'Отменено'}
-],
-    massTasks = [];
+const massTasks = [];
 
 const xhrRequestTask = {
     xhrGetTask: function() {
@@ -70,7 +65,7 @@ const xhrRequestTask = {
 
     xhrUpdateTask: function(valueForm) {
         for ( let i = 0; i < massEmployees.length; i++ ) {
-            if( valueForm.DesignatedEmployee == `${massEmployees[i].Surname} ${massEmployees[i].Name}`) {
+            if ( valueForm.DesignatedEmployee == `${massEmployees[i].Surname} ${massEmployees[i].Name}`) {
                 valueForm.DesignatedEmployee = massEmployees[i].Id;
             }
         }
@@ -88,6 +83,7 @@ const xhrRequestTask = {
                     massTasks[i].Hours = valueForm.Hours;
                     massTasks[i].HoursSpent = valueForm.HoursSpent;
                     massTasks[i].StatusTask = valueForm.StatusTask;
+                    massTasks[i].TaskDescription = valueForm.TaskDescription;
                 }
             }
             $$('tableTasksProject').updateItem(valueForm.id, valueForm);
@@ -108,17 +104,18 @@ function showProject() {
                 {
                     view: 'datatable',
                     id: 'tableTasksProject',
+                    tooltip: true,
                     select: true,
-                    editable: true,
                     editaction: 'dblclick',
                     scroll: 'y',
                     autoConfig: true,
                     columns: [
                         { id: 'Task', header: 'Задача', fillspace: true },
                         { id: 'DesignatedEmployee', header: 'Назначенный сотрудник', fillspace: true },
-                        { id: 'Hours', header: 'Часы', fillspace: true, },
+                        { id: 'Hours', header: 'Оценка задачи в часах', fillspace: true },
                         { id: 'HoursSpent', header: 'Потраченные часы', fillspace: true },
                         { id: 'StatusTask', header: 'Статус', fillspace: true },
+                        { id: 'TaskDescription', header: 'Описание задачи', fillspace: true },
                         ],
                         on: {
                             'onItemDblClick': showTask
@@ -129,7 +126,7 @@ function showProject() {
                 {
                     cols: [
                         { view: 'button', value: 'Добавить задачу', click: addTask, minWidth: 65, css: 'webix_primary' },
-                        { view: 'button', value: 'Вернуться на главную' , click: canselTasks, minWidth: 65, css: 'webix_primary'  }
+                        { view: 'button', value: 'Вернуться на главную' , click: canselTasks, minWidth: 65, css: 'webix_primary' }
                     ]
                 }
             ]
@@ -179,16 +176,22 @@ function showProject() {
                     labelWidth: 180
                 },
                 elements: [
-                    { view: 'text', label: 'Задача', name: 'Task', validate: webix.rules.isNotEmpty },
-                    { view: 'richselect', label: 'Назначенный сотрудник', name: 'DesignatedEmployee', options: employeesInvolved, validate: webix.rules.isNotEmpty },
-                    { view: 'text', label: 'Часы', name: 'Hours', validate: webix.rules.isNumber },
+                    { view: 'text', label: 'Задача', name: 'Task', invalidMessage: 'Введите краткое наименование задачи', validate: webix.rules.isNotEmpty },
+                    { view: 'richselect', label: 'Назначенный сотрудник', name: 'DesignatedEmployee', invalidMessage: 'Назначьте сотрудника на задачу', options: employeesInvolved, validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Оценка задачи в часах', name: 'Hours', invalidMessage: 'Введите число больше нуля', validate: webix.rules.isNumber },
                     { view: 'text', label: 'Потраченные часы', name: 'HoursSpent' },
-                    { view: 'richselect', label: 'Статус', name: 'StatusTask', value: 1, options: massStatus },
+                    { view: 'richselect', label: 'Статус', name: 'StatusTask', invalidMessage: 'Выберите статус задачи', options: [{Id: 1, value: 'Назначено'}], validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Описание задачи', name: 'TaskDescription', invalidMessage: 'Введите описание задачи', validate: webix.rules.isNotEmpty },
                     { margin: 5, cols: [
                     { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: saveTask},
                     { view: 'button', value: 'Отменить', minWidth: 65, click: canselSaveTask }
                 ]}
             ],
+            rules: {
+                Hours: function(value) {
+                    return value > 0;
+                }
+            },
             on: {
                 onValidationError: function (key, obj) {
                     let textMessage = 'Некорретно введена информация';
@@ -198,8 +201,6 @@ function showProject() {
             }
         }).show();
     
-        
-        
         function saveTask() {
             if ( $$('newTask').validate() ) {
                 let dataTask = $$('newTask').getValues();
@@ -221,6 +222,37 @@ function showProject() {
     }
     //////////////////////////////////////////////
     function showTask(id) {
+        let values = $$('tableTasksProject').getItem(id),
+            status = values.StatusTask,
+            actualstatus;
+
+        switch(status) {
+            case 'Назначено': 
+                actualstatus = [
+                    {value: 'Назначено'},
+                    {value: 'В работе'},
+                    {value: 'Отменено'}
+                ];
+            break;
+            case 'В работе':
+                actualstatus = [
+                        {value: 'В работе'},
+                        {value: 'Выполнено'},
+                        {value: 'Отменено'}
+                ];
+            break;
+            case 'Выполнено':
+                actualstatus = [
+                    {value: 'Выполнено'},
+                ];
+            break;
+            case 'Отменено':
+                actualstatus = [
+                    {value: 'Отменено'}
+                ];
+            break;
+        }
+        
         webix.ui({
             view: 'window',
             id: 'showTask',
@@ -238,24 +270,38 @@ function showProject() {
                 elements: [
                     { view: 'text', label: 'Задача', name: 'Task', validate: webix.rules.isNotEmpty },
                     { view: 'richselect', label: 'Назначенный сотрудник', name: 'DesignatedEmployee', options: employeesInvolved, validate: webix.rules.isNotEmpty },
-                    { view: 'text', label: 'Часы', name: 'Hours', validate: webix.rules.isNumber },
-                    { view: 'text', label: 'Потраченные часы', name: 'HoursSpent' },
-                    { view: 'richselect', label: 'Статус', name: 'StatusTask', options: massStatus },
+                    { view: 'text', label: 'Оценка задачи в часах', name: 'Hours', invalidMessage: 'Введите число больше нуля', validate: webix.rules.isNumber },
+                    { view: 'text', label: 'Потраченные часы', name: 'HoursSpent', invalidMessage: 'Введите потраченные часы' },
+                    { view: 'richselect', label: 'Статус', name: 'StatusTask', options: actualstatus },
+                    { view: 'text', label: 'Описание задачи', name: 'TaskDescription', validate: webix.rules.isNotEmpty},
                     { margin: 5, cols: [
                     { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: saveEditTask},
                     { view: 'button', value: 'Отменить', minWidth: 65, click: canselEditTask }
                 ]}
             ],
+                rules: {
+                    Hours: function(value) {
+                        return value > 0;
+                    },
+                    HoursSpent: function(value) {
+                        const valueTask = $$('cardTask').getValues();
+                        
+                        if (valueTask.StatusTask == 'Выполнено') {
+                            return value > 0;
+                        }
+                        return value;
+                    }
+                },
                 on: {
                     onValidationError: function (key, obj) {
                         textMessage = 'Некорретно введена информация';
                         webix.message( { type:"error", text: textMessage } );
-                        }
+                        $$('cardTask').clearValidation();
                     }
+                }
             }
         }).show();
         
-        let values = $$('tableTasksProject').getItem(id);
         $$('cardTask').setValues(values);
 
         function saveEditTask() {
@@ -277,7 +323,3 @@ function showProject() {
         }
     }
 }
-//?
-document.addEventListener('DOMContentLoaded', () => setTimeout(function() {
-    xhrRequestTask.xhrGetTask(); 
-}, 300));

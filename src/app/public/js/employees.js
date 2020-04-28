@@ -20,7 +20,7 @@ const xhrRequestEmployee = {
                 massEmployees.push(employee);
                 $$('tableActiveEmployees').add(employee);
             }
-        });
+        }).finally( () => xhrRequestTask.xhrGetTask() )
     },
 
     xhrAddEmployees: function(valueForm) {
@@ -115,9 +115,9 @@ function addNewEmployee() {
             labelWidth: 100
         },
         elements: [
-            { view: 'text', label: 'Фамилия', name: 'Surname', validate: webix.rules.isNotEmpty },
-            { view: 'text', label: 'Имя', name: 'Name', validate: webix.rules.isNotEmpty },
-            { view: 'text', label: 'Должность', name: 'Position', validate: webix.rules.isNotEmpty },
+            { view: 'text', label: 'Фамилия', name: 'Surname', invalidMessage: 'Введите фамилию сотрудника', validate: webix.rules.isNotEmpty },
+            { view: 'text', label: 'Имя', name: 'Name', invalidMessage: 'Введите имя сотрудника', validate: webix.rules.isNotEmpty },
+            { view: 'text', label: 'Должность', name: 'Position', invalidMessage: 'Введите должность сотрудника', validate: webix.rules.isNotEmpty },
             { margin: 5, cols: [
             { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: addEmployee},
             { view: 'button', value: 'Отменить', minWidth: 65, click: canselEmployee }
@@ -175,9 +175,9 @@ function showEmployeeCard(id) {
                 labelWidth: 107
               },
             elements: [
-                { view: 'text', label: 'Фамилия', name: 'Surname', validate: webix.rules.isNotEmpty },
-                { view: 'text', label: 'Имя', name: 'Name', validate: webix.rules.isNotEmpty },
-                { view: 'text', label: 'Должность', name: 'Position', validate: webix.rules.isNotEmpty },
+                { view: 'text', label: 'Фамилия', name: 'Surname', invalidMessage: 'Введите фамилию сотрудника', validate: webix.rules.isNotEmpty },
+                { view: 'text', label: 'Имя', name: 'Name', invalidMessage: 'Введите имя сотрудника', validate: webix.rules.isNotEmpty },
+                { view: 'text', label: 'Должность', name: 'Position', invalidMessage: 'Введите должность сотрудника', validate: webix.rules.isNotEmpty },
                 { margin: 5, cols: [
                 { view: 'button', value: 'Сохранить' , minWidth: 70, css: 'webix_primary', click: saveEmployee },
                 { view: 'button', value: 'Удалить сотрудника' , minWidth: 70, css: 'webix_primary', height: 45, click: deleteEmployee},

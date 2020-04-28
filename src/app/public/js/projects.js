@@ -2,7 +2,6 @@ class Project {
     constructor(id, dataProject) {
         this.Id = id;
         this.Name = dataProject.Name;
-        this.Date = dataProject.Date;
     }
 }
 
@@ -28,7 +27,6 @@ const xhrRequestProject = {
             for ( let i = 0; i < massEmployees.length; i++ ) {
                 if (massProjects[i].Id == valueForm.Id) {
                     massProjects[i].Name = valueForm.Name;
-                    massProjects[i].Date = valueForm.Date;
                 }
             }
             $$('tableActiveProjects').updateItem(valueForm.id, valueForm);
@@ -88,14 +86,6 @@ let activeProjects = {
                     'onItemClick': deleteProject
                 }
             },
-
-            // Потенциальная кнопка для завершения проекта, перенесения его в отдельную таблицу с возможностью дальнейшего просмотра информации по проекту
-            // {
-            //     view: 'button', id: 'completeButton', value: 'Завершённые проекты', autowidth: true, 
-            //     on: {
-            //         'onItemClick': completedProject
-            //     }
-            // }
         ]
     }, 
         {
@@ -103,12 +93,11 @@ let activeProjects = {
             id: 'tableActiveProjects',
             sort: 'multi',
             scroll: 'y',
-            //tooltip:true,
+            tooltip:true,
             select: true,
             autoConfig: true,
             columns: [
                 { id: 'Name', header: 'Название проекта', fillspace: true },
-                { id: 'Date', header: 'Дата создания', fillspace: true }
             ],
             on: {
                 'onItemDblClick': showProject
@@ -131,8 +120,7 @@ function addProject() {
             id: 'newProject',
             width: 300,
             elements: [
-                { view: 'text', label: 'Проект', name: 'Name', validate: webix.rules.isNotEmpty },
-                { view: 'text', label: 'Создан', labelWidth: 81, name: 'Date', validate: webix.rules.isNotEmpty },
+                { view: 'text', label: 'Проект', name: 'Name', invalidMessage: 'Введите название проекта', validate: webix.rules.isNotEmpty },
                 { margin: 5, cols: [
                 { view: 'button', value: 'Создать' , minWidth: 65, css: 'webix_primary', click: addNewProject },
                 { view: 'button', value: 'Отмена', minWidth: 65, click: canselAddProject }
@@ -189,8 +177,7 @@ function editProject() {
                 id: 'cardProject',
                 width: 300,
                 elements: [
-                    { view: 'text', label: 'Проект', name: 'Name', validate: webix.rules.isNotEmpty },
-                    { view: 'text', label: 'Создан', labelWidth: 81, name: 'Date', validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Проект', name: 'Name', invalidMessage: 'Введите название проекта', validate: webix.rules.isNotEmpty },
                     { margin: 5, cols: [
                     { view: 'button', value: 'Сохранить' , minWidth: 65, css: 'webix_primary', click: editProject },
                     { view: 'button', value: 'Отмена', minWidth: 65, click: canselEditProject }
@@ -212,7 +199,7 @@ function editProject() {
             if ( $$('cardProject').validate()) {
                 let newValues = $$('cardProject').getValues();
     
-                if ((values.Name == newValues.Name) && (values.Date == newValues.Date)) {
+                if ((values.Name == newValues.Name)) {
                     $$('cardProject').clear();
                     $$('editProject').hide();
                     return;
@@ -247,62 +234,5 @@ function deleteProject() {
         });
     }
 }
-
-// function completeProject() {
-    //     webix.confirm({
-    //         title: 'Закрытие проекта',
-    //         text: 'Уверены, что хотите завершить проект?'
-    //     }).then( () => {
-
-    //         for ( let i = 0; i < projects.length; i++ ) {
-    //             if ( projects[i].id == idActiveProject ) {
-    //                 let complProject = Object.assign({}, projects[i]);
-    //                 complitedProjects.push(complProject);
-    //                 projects.splice(i, 1);
-    //             }
-    //         }
-
-    //         $$('tableActiveProjects').remove(idActiveProject);
-    //         $$('tasksProject').hide();
-    //         webix.message('Проект закрыт');
-    //     });
-    // }
-
-// Потенциальный функционал для отслеживания уже завершённых проектов
-// function completedProject() {
-//     webix.ui({
-//         view: 'popup',
-//         id: 'completeProjects',
-//         position: 'center',
-//         body: {
-//             rows: [
-//                 {
-//                 view: 'datatable',
-//                 id: 'completedProject',
-//                 scroll: 'y',
-//                 autoConfig: true,
-//                 data: complitedProjects,
-//                 columns: [
-//                     { id: 'Name', header: 'Название проекта', fillspace: true },
-//                     { id: 'Date', header: 'Дата создания', fillspace: true }
-//                 ],
-//                 },
-
-//                 {
-//                 view: 'button', 
-//                 id: 'canselWindowsCompletedProject', 
-//                 value: 'Закрыть', 
-//                 css: 'webix_primary', 
-//                 inputWidth: 300,
-//                 on: {
-//                     'onItemClick': function () {
-//                         $$('completeProjects').hide();
-//                         }
-//                     }
-//                 }
-//             ]
-//         }
-//     }).show();
-// }
 
 document.addEventListener('DOMContentLoaded', xhrRequestProject.xhrGetProjects);
