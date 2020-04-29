@@ -22,8 +22,7 @@ const xhrRequestProject = {
     },
 
     xhrUpdateProject: function(valueForm) {
-        console.log(valueForm)
-        webix.ajax().post('/project/:id/update', valueForm).then(function(){
+        webix.ajax().post('/project/:id/update', valueForm).then(function() {
             for ( let i = 0; i < massEmployees.length; i++ ) {
                 if (massProjects[i].Id == valueForm.Id) {
                     massProjects[i].Name = valueForm.Name;

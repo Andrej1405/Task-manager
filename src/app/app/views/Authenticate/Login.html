@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../public/css/webix.css">
+    <script src="../public/js/webix.js"></script>
+
+    <title>Авторизация</title>
+</head>
+<body>
+    <script>
+        const xhrRequestUser = {
+            xhrAddUser: function(valueForm) {
+
+            },
+
+            xhrConnectUser: function(valueForm) {
+                
+            },
+        };
+
+        function registrUser() {
+            webix.ui({
+            view: 'window',
+            id: 'newUser',
+            head: 'Регистрация нового пользователя',
+            close: true,
+            modal: true,
+            position: 'center',
+            width: 380,
+            body: {
+                view: 'form', 
+                id: 'dataNewUser',
+                elementsConfig: {
+                    labelWidth: 110
+                },
+                elements: [
+                    { view: 'text', label: 'Имя', name: 'Name', invalidMessage: 'Введите ваше имя', validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Фамилия', name: 'Surname', invalidMessage: 'Введите вашу фамилию', validate: webix.rules.isNotEmpty },
+                    { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введите ваш email', validate: webix.rules.isEmail },
+                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Введите ваш пароль', validate: webix.rules.isNotEmpty },
+                    { margin: 5, cols: [
+                    { view: 'button', value: 'Зарегистрироваться' , minWidth: 100, css: 'webix_primary', click: addNewUser },
+                    { view: 'button', value: 'Отмена' , minWidth: 70, css: 'webix_primary', click: closeForm },
+                ]}
+            ],
+                on: {
+                    onValidationError: function (key, obj) {
+                        textMessage = 'Некорретно введена информация';
+                        webix.message( { type:"error", text: textMessage } );
+                        }
+                }
+            }
+        }).show();
+
+        function addNewUser() {
+            if ( $$('dataNewUser').validate() ) {
+                webix.message('Вы успешно зарегистрировались');
+
+                $$('dataNewUser').clear();
+                $$('newUser').hide();
+                return
+            } 
+        }
+
+        function closeForm() {
+            $$('dataNewUser').clear();
+            $$('newUser').hide();
+            return
+        }
+    }
+
+        let authenticateForm = {
+                view: 'form', 
+                id: 'formAuthenticate',
+                elementsConfig: {
+                    labelWidth: 180
+                },
+                elements: [
+                    { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введите email' },
+                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Введите пароль' },
+                    {   cols: [
+                        { view: 'button', value: 'Войти' , minWidth: 70, css: 'webix_primary' },
+                        { view: 'button', value: 'Регистрация' , minWidth: 70, css: 'webix_primary', click: registrUser },
+                    ]
+
+                    }      
+            ],
+                rules: {
+                    
+                },
+                on: {
+                    
+                }
+            
+        };
+
+        webix.ready(function() {
+            webix.ui({
+                rows:[
+                    authenticateForm
+                ]       
+            });
+        });
+
+    </script>
+</body>

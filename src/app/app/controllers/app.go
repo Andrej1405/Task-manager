@@ -9,5 +9,8 @@ type App struct {
 }
 
 func (c App) Index() revel.Result {
+	// if true {
+	// 	return c.Redirect((*Authenticate).Login)
+	// }
 	return c.Render()
 }

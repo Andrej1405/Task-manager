@@ -23,6 +23,8 @@ GET     /getTask                               ControllerTask.GetTask
 POST    /task/add                              ControllerTask.AddNewTask
 POST    /task/:id/update                       ControllerTask.UpdateTask
 
+GET     /authentication/signin                 Authenticate.Login
+
 # Map static resources from the /app/public folder to the /public path
 GET     /public/*filepath                       Static.Serve("public")
 
