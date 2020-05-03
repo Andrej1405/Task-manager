@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../public/css/webix.css">
+    <script src="../public/js/webix.js"></script> 
+
+    <title>Авторизация</title>
+</head>
+<body>
+    <script>
+        const xhrRequestUser = {
+            xhrAddUser: function(valueForm) {
+                webix.ajax().post('/authentication/:id/registration', valueForm).then(function(message) {
+                    let errMessage = message.json();
+
+                    if (errMessage != null) {
+                        switch(errMessage) {
+                            case 'Пользователь с таким email уже зарегистрирован':
+                                webix.message({
+                                text: errMessage,
+                                type: 'error', 
+                                expire: 10000,
+                                id: 'message1'
+                                });
+                            break;
+                            default:
+                                webix.message({
+                                text: errMessage,
+                                type: 'error', 
+                                expire: 10000,
+                                id: 'message3'
+                                });
+                        }
+
+                        $$('dataNewUser').clear();
+                        $$('newUser').hide();
+                        return
+                    }
+        
+                    webix.message('Вы успешно зарегистрировались');
+
+                    $$('dataNewUser').clear();
+                    $$('newUser').hide();
+                    return
+                });
+            },
+
+            xhrConnectUser: function(valueForm) {
+                webix.ajax().post(':id/login', valueForm).then(function(bool) {
+                    let boolean = bool.json();
+
+                    if (boolean == true) {
+                        window.location = "http://localhost:9000/";
+                    } else {
+                        webix.message({
+                            text: 'Неверно введён логин или пароль',
+                            type: 'error', 
+                            expire: 10000,
+                            id: 'message4'
+                        });
+                    }
+                });
+            },
+        };
+
+        function registrUser() {
+            webix.ui({
+            view: 'window',
+            id: 'newUser',
+            head: 'Регистрация нового пользователя',
+            close: true,
+            modal: true,
+            position: 'center',
+            width: 380,
+            body: {
+                view: 'form', 
+                id: 'dataNewUser',
+                elementsConfig: {
+                    labelWidth: 150
+                },
+                elements: [
+                    { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введите ваш email', validate: webix.rules.isEmail },
+                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Пароль должен быть больше 6 символов', validate: webix.rules.isNotEmpty },
+                    { view: 'text', type: 'password', label: 'Подтвердите пароль', name: 'confirmPassword', invalidMessage: 'Пароли не совпадают', validate: webix.rules.isNotEmpty },
+                    { margin: 5, cols: [
+                    { view: 'button', value: 'Зарегистрироваться', minWidth: 100, css: 'webix_primary', click: addNewUser },
+                    { view: 'button', value: 'Отмена' , minWidth: 70, css: 'webix_primary', click: closeForm },
+                ]}
+            ],
+                rules: {
+                    Password: function(value) {
+                        let regexp = /[0-9a-zA-Z!@#$%^&*-]{6,}/;
+
+                        if (regexp.test(value)) {
+                            return value
+                        }   
+                    },
+
+                    confirmPassword: function(value) {
+                        const valueUser = $$('dataNewUser').getValues();
+                        if (valueUser.Password == valueUser.confirmPassword) {
+                            return value
+                        }
+                    }
+                },
+                on: {
+                    onValidationError: function (key, obj) {
+                        textMessage = 'Некорретно введена информация';
+                        webix.message( { type:"error", text: textMessage } );
+                    }
+                }
+            }
+        }).show();
+
+        function addNewUser() {
+            if ( $$('dataNewUser').validate() ) {
+                let dataUser = $$('dataNewUser').getValues();
+
+                xhrRequestUser.xhrAddUser(dataUser);
+            } 
+        }
+
+        function closeForm() {
+            $$('dataNewUser').clear();
+            $$('newUser').hide();
+            return
+        }
+    }
+
+    function login() {
+        if ( $$('formAuthenticate').validate() ) {
+            let valueForm = $$('formAuthenticate').getValues();
+
+            xhrRequestUser.xhrConnectUser(valueForm);
+        }
+    }
+
+        let authenticateForm = {
+                view: 'form', 
+                id: 'formAuthenticate',
+                scroll: false,
+                css: { margin:"auto" },
+                css: 'webix_shadow_big',
+                width: 370,
+                padding: 30,
+                elementsConfig: {
+                    labelWidth: 80
+                },
+                elements: [
+                    { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введён некорректный email', validate: webix.rules.isEmail },
+                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Введён некорретный пароль' },
+                    {   cols: [
+                        { view: 'button', value: 'Войти' , minWidth: 70, css: 'webix_primary', click: login },
+                        { view: 'button', value: 'Регистрация' , minWidth: 70, css: 'webix_primary', click: registrUser },
+                    ]
+
+                    }      
+            ],
+                rules: {
+                    Password: function(value) {
+                        let regexp = /[0-9a-zA-Z!@#$%^&*-]{6,}/;
+
+                        if (regexp.test(value)) {
+                            return value
+                        }   
+                    },
+                },
+                on: {
+                    onValidationError: function (key, obj) {
+                        textMessage = 'Введены некорректные данные';
+                        webix.message( { type:"error", text: textMessage } );
+                    }
+                }    
+        };
+
+        webix.ready(function() {
+            webix.ui({
+                cols:[
+                    {},
+
+                    { rows:
+                        [
+                            {}, 
+                            authenticateForm, 
+                            {}
+                        ]
+                    },
+                     
+                    {}
+                ]      
+            });
+        });
+
+    </script>
+</body>

@@ -1,2 +1,0 @@
-password: 1111
-port: 5432

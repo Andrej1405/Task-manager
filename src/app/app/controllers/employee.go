@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	entities "app/app/model"
-	"app/app/server"
+	mappers "app/app/model/mappers"
+	"app/app/model/providers"
 	"fmt"
 
 	"github.com/revel/revel"
@@ -13,12 +13,7 @@ type ControllerEmployee struct {
 }
 
 func (c ControllerEmployee) GetEmployee() revel.Result {
-	err := server.InitDB()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	employees, err := entities.GetAllEmployees()
+	employees, err := mappers.GetAllEmployees()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -32,14 +27,9 @@ func (c ControllerEmployee) AddNewEmployee(Surname, Name, Position string) revel
 		return c.Render()
 	}
 
-	err := server.InitDB()
-	if err != nil {
-		fmt.Println(err)
-	}
+	employee := mappers.NewEmployee(Surname, Name, Position)
 
-	employee := entities.NewEmployee(Surname, Name, Position)
-
-	id, err := entities.EmployeeAdd(employee)
+	id, err := mappers.EmployeeAdd(employee)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -53,12 +43,7 @@ func (c ControllerEmployee) UpdateEmployee(Id, Surname, Name, Position string) r
 		return c.Render()
 	}
 
-	err := server.InitDB()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	employee, err := entities.GetEmployeeById(Id)
+	employee, err := mappers.GetEmployeeById(Id)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -67,7 +52,7 @@ func (c ControllerEmployee) UpdateEmployee(Id, Surname, Name, Position string) r
 	employee.Name = Name
 	employee.Position = Position
 
-	err = entities.EmployeeUpdate(&employee)
+	err = providers.EmployeeUpdate(&employee)
 
 	if err != nil {
 		fmt.Println(err)
@@ -82,13 +67,7 @@ func (c ControllerEmployee) DeleteEmployee(Id string) revel.Result {
 		return c.Render()
 	}
 
-	err := server.InitDB()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = entities.EmployeeDelete(Id)
-
+	err := providers.EmployeeDelete(Id)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	entities "app/app/model"
-	"app/app/server"
+	mappers "app/app/model/mappers"
+	"app/app/model/providers"
 	"fmt"
 
 	"github.com/revel/revel"
@@ -13,12 +13,7 @@ type ControllerProject struct {
 }
 
 func (c ControllerProject) GetProject() revel.Result {
-	err := server.InitDB()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	projects, err := entities.GetAllProjects()
+	projects, err := mappers.GetAllProjects()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -32,17 +27,13 @@ func (c ControllerProject) AddNewProject(Name string) revel.Result {
 		return c.Render()
 	}
 
-	err := server.InitDB()
+	project := mappers.NewProject(Name)
+
+	id, err := mappers.ProjectAdd(project)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	project := entities.NewProject(Name)
-
-	id, err := entities.ProjectAdd(project)
-	if err != nil {
-		fmt.Println(err)
-	}
 	return c.RenderJSON(id)
 }
 
@@ -52,22 +43,18 @@ func (c ControllerProject) UpdateProject(Id, Name string) revel.Result {
 		return c.Render()
 	}
 
-	err := server.InitDB()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	project, err := entities.GetProjectById(Id)
+	project, err := mappers.GetProjectById(Id)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	project.Name = Name
 
-	err = entities.ProjectUpdate(&project)
+	err = providers.ProjectRowUpdate(&project)
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	return c.Render()
 }
 
@@ -77,12 +64,7 @@ func (c ControllerProject) DeleteProject(Id string) revel.Result {
 		return c.Render()
 	}
 
-	err := server.InitDB()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = entities.ProjectDelete(Id)
+	err := providers.ProjectRowDelete(Id)
 	if err != nil {
 		fmt.Println(err)
 	}

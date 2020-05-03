@@ -23,7 +23,7 @@ const xhrRequestProject = {
 
     xhrUpdateProject: function(valueForm) {
         webix.ajax().post('/project/:id/update', valueForm).then(function() {
-            for ( let i = 0; i < massEmployees.length; i++ ) {
+            for ( let i = 0; i < massProjects.length; i++ ) {
                 if (massProjects[i].Id == valueForm.Id) {
                     massProjects[i].Name = valueForm.Name;
                 }
@@ -197,7 +197,6 @@ function editProject() {
         function editProject() {
             if ( $$('cardProject').validate()) {
                 let newValues = $$('cardProject').getValues();
-    
                 if ((values.Name == newValues.Name)) {
                     $$('cardProject').clear();
                     $$('editProject').hide();

@@ -19,12 +19,19 @@
 </head>
 <body>
     <script>
+
+    function xhrLogoutUser() {
+        webix.ajax().post('/authentication/:id/logout').then(function(){
+            window.location = "http://localhost:9000/authentication/signin";
+        });
+    }   
         // Шапка сайта
         let header = {
+            view: 'toolbar', 
+            css: 'webix_dark',
             cols: [
                 { type: 'header', template: 'Task manager' },
-                { view: 'button', id: 'regButton', value: 'Регистрация', autowidth: true },
-                { view: 'button', id: 'autorizeButton', value: 'Авторизация', autowidth: true }
+                { view: 'button', value: 'Выйти', click: xhrLogoutUser}
             ]
         };
 

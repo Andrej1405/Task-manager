@@ -18,11 +18,6 @@ const xhrRequestTask = {
         webix.ajax().get('getTask').then(function(data) {
             data = data.json();
             for ( let i = 0; i < data.length; i++ ) {
-                for ( let j = 0; j < massEmployees.length; j++ ) {
-                    if (massEmployees[j].Id == data[i].DesignatedEmployee) {
-                        data[i].DesignatedEmployee = `${massEmployees[j].Surname} ${massEmployees[j].Name}`;
-                    }
-                }
                 let task = new Task(data[i].IdTask, data[i]);
                 massTasks.push(task);
             }
@@ -33,43 +28,19 @@ const xhrRequestTask = {
     xhrAddTask: function(idActiveProject, valueForm) {
         let id_project = idActiveProject;
         valueForm.Id_project = id_project;
-
-        for ( let i = 0; i < massEmployees.length; i++ ) {
-            if( valueForm.DesignatedEmployee == `${massEmployees[i].Surname} ${massEmployees[i].Name}`) {
-                valueForm.DesignatedEmployee = massEmployees[i].Id;
-            }
-        }
-
+        
         webix.ajax().post('/task/add', valueForm).then(function(id) {
-            for ( let i = 0; i < massEmployees.length; i++ ) {
-                if( valueForm.DesignatedEmployee == massEmployees[i].Id) {
-                    valueForm.DesignatedEmployee = `${massEmployees[i].Surname} ${massEmployees[i].Name}`;
-                }
-            }
-
             let idTask = id.json();
-            
             let task = new Task(idTask, valueForm);
             massTasks.push(task);
-
-            $$('tableTasksProject').add(task);
             
+            $$('tableTasksProject').add(task);
             webix.message('Задача добавлена');
             return;
         });
     },
-
-    // xhrDelTask: function() {
-    
-    // },
-
+    ///////добавить случаи, когда запрос не удался и вернулся отрицательный ответ
     xhrUpdateTask: function(valueForm) {
-        for ( let i = 0; i < massEmployees.length; i++ ) {
-            if ( valueForm.DesignatedEmployee == `${massEmployees[i].Surname} ${massEmployees[i].Name}`) {
-                valueForm.DesignatedEmployee = massEmployees[i].Id;
-            }
-        }
-        console.log(valueForm)
         webix.ajax().post('/task/:id/update', valueForm).then(function(data) {
             for ( let i = 0; i < massEmployees.length; i++ ) {
                 if( valueForm.DesignatedEmployee == massEmployees[i].Id) {
@@ -86,6 +57,7 @@ const xhrRequestTask = {
                     massTasks[i].TaskDescription = valueForm.TaskDescription;
                 }
             }
+            
             $$('tableTasksProject').updateItem(valueForm.id, valueForm);
             return;
         });
@@ -110,11 +82,11 @@ function showProject() {
                     scroll: 'y',
                     autoConfig: true,
                     columns: [
-                        { id: 'Task', header: 'Задача', fillspace: true },
-                        { id: 'DesignatedEmployee', header: 'Назначенный сотрудник', fillspace: true },
-                        { id: 'Hours', header: 'Оценка задачи в часах', fillspace: true },
-                        { id: 'HoursSpent', header: 'Потраченные часы', fillspace: true },
-                        { id: 'StatusTask', header: 'Статус', fillspace: true },
+                        { id: 'Task', header: 'Задача', fillspace: true, sort: 'string' },
+                        { id: 'DesignatedEmployee', header: 'Назначенный сотрудник', fillspace: true, sort: 'string' },
+                        { id: 'Hours', header: 'Оценка задачи в часах', fillspace: true, sort: 'int' },
+                        { id: 'HoursSpent', header: 'Потраченные часы', fillspace: true, sort: 'int' },
+                        { id: 'StatusTask', header: 'Статус', fillspace: true, sort: 'string' },
                         { id: 'TaskDescription', header: 'Описание задачи', fillspace: true },
                         ],
                         on: {
@@ -126,6 +98,7 @@ function showProject() {
                 {
                     cols: [
                         { view: 'button', value: 'Добавить задачу', click: addTask, minWidth: 65, css: 'webix_primary' },
+                        { view: 'button', value: 'Показать / скрыть закрытые задачи', click: hideShow, minWidth: 65, css: 'webix_primary' },
                         { view: 'button', value: 'Вернуться на главную' , click: canselTasks, minWidth: 65, css: 'webix_primary' }
                     ]
                 }
@@ -136,28 +109,51 @@ function showProject() {
     const activeProject = $$('tableActiveProjects').getSelectedItem(),
           idActiveProject = activeProject.Id;
 
-    let massTasksOfProject = [],
+    let massHide = [],
         employeesInvolved = [];
     
     for ( let i = 0; i < massEmployees.length; i++ ) {
         let objEmployee = {};
 
-        objEmployee.Id = massEmployees[i].Id; //?
+        objEmployee.Id = massEmployees[i].Id;
         objEmployee.value = `${massEmployees[i].Surname} ${massEmployees[i].Name}`;
 
         employeesInvolved.push(objEmployee);
     }
 
     for ( let i = 0; i < massTasks.length; i++ ) {
-        if (massTasks[i].Id_project == idActiveProject) {
-            massTasksOfProject.push(massTasks[i]);
+        if ( massTasks[i].Id_project == idActiveProject ) {
             $$('tableTasksProject').add(massTasks[i]);
+
+            if (massTasks[i].StatusTask == 'Закрыто') {
+                massHide.push(massTasks[i]);
+
+                let item = $$('tableTasksProject').getItem(massTasks[i].id);
+                item.hidden = true;
+
+                $$('tableTasksProject').updateItem(massTasks[i].id, item);
+                $$('tableTasksProject').filter(function(obj) {
+                    return !obj.hidden;
+                });
+            }
         }
     }
 
     function canselTasks() {
         $$('tasksProject').hide();
         return;
+    }
+
+    function hideShow() {
+        for ( let i = 0; i < massHide.length; i++ ) {  
+            let item = $$('tableTasksProject').getItem(massHide[i].id);
+            item.hidden = item.hidden ? false : true;
+
+            $$('tableTasksProject').updateItem(massHide[i].id, item);
+            $$('tableTasksProject').filter(function(obj) {
+                return !obj.hidden;
+            });
+        }
     }
     //////////////////////////////////////////////////////////////
     function addTask() {
@@ -244,6 +240,12 @@ function showProject() {
             case 'Выполнено':
                 actualstatus = [
                     {value: 'Выполнено'},
+                    {value: 'Закрыто'}
+                ];
+            break;
+            case 'Закрыто':
+                actualstatus = [
+                    {value: 'Закрыто'}
                 ];
             break;
             case 'Отменено':
@@ -310,6 +312,14 @@ function showProject() {
                 
                 xhrRequestTask.xhrUpdateTask(dataTask);
 
+                if (dataTask.StatusTask == 'Закрыто') {
+                    for ( let i = 0; i < massTasks.length; i++ ) {
+                        if (massTasks[i].IdTask == dataTask.IdTask) {
+                            massHide.push(massTasks[i]);
+                        }
+                    }
+                }
+                
                 $$('cardTask').clear();
                 $$('showTask').hide();
                 return;
