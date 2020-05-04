@@ -1,16 +1,27 @@
 package mappers
 
 import (
+	config "app/app/config"
 	"app/app/model/entities"
-	"app/app/model/providers"
+	"database/sql"
 	"fmt"
-	"strconv"
-	"strings"
 )
 
 func GetAllEmployees() (employees []entities.Employee, err error) {
+	db, err := sql.Open("postgres", config.InitConnectionString())
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
+
+	query := `SELECT * FROM employees`
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+
 	employee := entities.Employee{}
-	rows := providers.GetAllRowsEmployee()
 
 	for rows.Next() {
 		err = rows.Scan(&employee.Id, &employee.Surname, &employee.Name, &employee.Position)
@@ -24,8 +35,14 @@ func GetAllEmployees() (employees []entities.Employee, err error) {
 }
 
 func GetEmployeeById(employeeId string) (employee entities.Employee, err error) {
-	employee = entities.Employee{}
-	row := providers.GetRowEmployeeById(employeeId)
+	db, err := sql.Open("postgres", config.InitConnectionString())
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
+
+	query := `SELECT * FROM employees WHERE id = $1`
+	row := db.QueryRow(query, employeeId)
 
 	err = row.Scan(&employee.Id, &employee.Surname, &employee.Name, &employee.Position)
 	if err != nil {
@@ -35,9 +52,17 @@ func GetEmployeeById(employeeId string) (employee entities.Employee, err error) 
 	return employee, err
 }
 
-func GetEmployee(surname, name string) (employee entities.Employee, err error) {
+func GetEmployeeBySurnameName(surname, name string) (employee entities.Employee, err error) {
+	db, err := sql.Open("postgres", config.InitConnectionString())
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
+
+	query := `SELECT * FROM employees WHERE (surname = $1 AND name = $2)`
+	row := db.QueryRow(query, surname, name)
+
 	employee = entities.Employee{}
-	row := providers.GetRowEmployee(surname, name)
 
 	err = row.Scan(&employee.Id, &employee.Surname, &employee.Name, &employee.Position)
 	if err != nil {
@@ -45,30 +70,50 @@ func GetEmployee(surname, name string) (employee entities.Employee, err error) {
 	}
 
 	return employee, err
-}
-
-func NewEmployee(Surname, Name, Position string) *entities.Employee {
-	return &entities.Employee{Surname: Surname, Name: Name, Position: Position}
 }
 
 func EmployeeAdd(employee *entities.Employee) (id int, err error) {
-	id, err = providers.EmployeeRowAdd(employee)
+	db, err := sql.Open("postgres", config.InitConnectionString())
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
+
+	query := `INSERT INTO employees (surname, name, position) VALUES ($1, $2, $3) returning id`
+	db.QueryRow(query, employee.Surname, employee.Name, employee.Position).Scan(&id)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return id, err
 }
 
-func GetIdDesignatedEmployee(DesignatedEmployee string) (idDesignatedEmployee string) {
-	massSurName := strings.Split(DesignatedEmployee, " ")
+func EmployeeUpdate(employee *entities.Employee) (err error) {
+	db, err := sql.Open("postgres", config.InitConnectionString())
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
 
-	surname := massSurName[0]
-	name := massSurName[1]
+	query := `UPDATE employees SET surname = $1, name = $2, position = $3 WHERE id = $4`
+	_, err = db.Exec(query, employee.Surname, employee.Name,
+		employee.Position, employee.Id)
 
-	rowDesignatedEmployee, err := GetEmployee(surname, name)
+	return
+}
+
+func EmployeeDelete(employeeId string) (err error) {
+	db, err := sql.Open("postgres", config.InitConnectionString())
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
+
+	query := `DELETE FROM employees WHERE id = $1`
+	_, err = db.Exec(query, employeeId)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	idDesignatedEmployee = strconv.Itoa(rowDesignatedEmployee.Id)
-
-	return idDesignatedEmployee
+	return
 }

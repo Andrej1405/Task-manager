@@ -1,37 +1,36 @@
 package providers
 
 import (
-	config "app/app/config"
 	"app/app/model/entities"
-	"database/sql"
+	"app/app/model/mappers"
 	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-func GetUserByEmail(email string) *sql.Row {
-	db, err := sql.Open("postgres", config.InitConnectionString())
+func NewUser(email, password string) (err error) {
+	password = HashPassword([]byte(password))
+
+	user := &entities.User{Email: email, Password: password}
+
+	err = mappers.AddNewUser(user)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
-	defer db.Close()
 
-	query := `SELECT * FROM users WHERE email = $1`
-	row := db.QueryRow(query, email)
-
-	return row
+	return err
 }
 
-func AddNewUser(user *entities.User) (err error) {
-	db, err := sql.Open("postgres", config.InitConnectionString())
+func HashPassword(pass []byte) (password string) {
+	hashedPassword, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
 	if err != nil {
-		fmt.Println(err)
-	}
-	defer db.Close()
-
-	query := `INSERT INTO users (email, password) VALUES ($1, $2) returning id`
-	db.QueryRow(query, user.Email, user.Password)
-	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
-	return
+	err = bcrypt.CompareHashAndPassword(hashedPassword, pass)
+
+	password = string(hashedPassword)
+
+	return password
 }

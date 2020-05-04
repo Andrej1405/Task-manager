@@ -17,24 +17,13 @@
                     let errMessage = message.json();
 
                     if (errMessage != null) {
-                        switch(errMessage) {
-                            case 'Пользователь с таким email уже зарегистрирован':
-                                webix.message({
-                                text: errMessage,
-                                type: 'error', 
-                                expire: 10000,
-                                id: 'message1'
-                                });
-                            break;
-                            default:
-                                webix.message({
-                                text: errMessage,
-                                type: 'error', 
-                                expire: 10000,
-                                id: 'message3'
-                                });
-                        }
-
+                        webix.message({
+                            text: errMessage,
+                            type: 'error', 
+                            expire: 10000,
+                            id: 'message3'
+                        });
+                        
                         $$('dataNewUser').clear();
                         $$('newUser').hide();
                         return

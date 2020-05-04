@@ -13,7 +13,7 @@ type ControllerProject struct {
 }
 
 func (c ControllerProject) GetProject() revel.Result {
-	projects, err := mappers.GetAllProjects()
+	projects, err := mappers.GetAllProject()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -27,35 +27,9 @@ func (c ControllerProject) AddNewProject(Name string) revel.Result {
 		return c.Render()
 	}
 
-	project := mappers.NewProject(Name)
-
-	id, err := mappers.ProjectAdd(project)
-	if err != nil {
-		fmt.Println(err)
-	}
+	id := providers.NewProject(Name)
 
 	return c.RenderJSON(id)
-}
-
-func (c ControllerProject) UpdateProject(Id, Name string) revel.Result {
-	if Name == "" {
-		fmt.Println("Название проекта пусто. Обновление проекта не удалось")
-		return c.Render()
-	}
-
-	project, err := mappers.GetProjectById(Id)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	project.Name = Name
-
-	err = providers.ProjectRowUpdate(&project)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return c.Render()
 }
 
 func (c ControllerProject) DeleteProject(Id string) revel.Result {
@@ -64,7 +38,21 @@ func (c ControllerProject) DeleteProject(Id string) revel.Result {
 		return c.Render()
 	}
 
-	err := providers.ProjectRowDelete(Id)
+	err := mappers.ProjectDelete(Id)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return c.Render()
+}
+
+func (c ControllerProject) UpdateProject(Id, Name string) revel.Result {
+	if Name == "" {
+		fmt.Println("Название проекта пусто. Обновление проекта не удалось")
+		return c.Render()
+	}
+
+	err := providers.UpdateProj(Id, Name)
 	if err != nil {
 		fmt.Println(err)
 	}

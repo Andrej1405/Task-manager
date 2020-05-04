@@ -16,6 +16,7 @@ func (c ControllerEmployee) GetEmployee() revel.Result {
 	employees, err := mappers.GetAllEmployees()
 	if err != nil {
 		fmt.Println(err)
+		return c.RenderError(err)
 	}
 
 	return c.RenderJSON(employees)
@@ -27,38 +28,9 @@ func (c ControllerEmployee) AddNewEmployee(Surname, Name, Position string) revel
 		return c.Render()
 	}
 
-	employee := mappers.NewEmployee(Surname, Name, Position)
-
-	id, err := mappers.EmployeeAdd(employee)
-	if err != nil {
-		fmt.Println(err)
-	}
+	id := providers.NewEmployee(Surname, Name, Position)
 
 	return c.RenderJSON(id)
-}
-
-func (c ControllerEmployee) UpdateEmployee(Id, Surname, Name, Position string) revel.Result {
-	if Id == "" || Surname == "" || Name == "" || Position == "" {
-		fmt.Println("Данные некорректны. Обновление сотрудника не удалось")
-		return c.Render()
-	}
-
-	employee, err := mappers.GetEmployeeById(Id)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	employee.Surname = Surname
-	employee.Name = Name
-	employee.Position = Position
-
-	err = providers.EmployeeUpdate(&employee)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return c.Render()
 }
 
 func (c ControllerEmployee) DeleteEmployee(Id string) revel.Result {
@@ -67,7 +39,21 @@ func (c ControllerEmployee) DeleteEmployee(Id string) revel.Result {
 		return c.Render()
 	}
 
-	err := providers.EmployeeDelete(Id)
+	err := mappers.EmployeeDelete(Id)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return c.Render()
+}
+
+func (c ControllerEmployee) UpdateEmployee(Id, Surname, Name, Position string) revel.Result {
+	if Id == "" || Surname == "" || Name == "" || Position == "" {
+		fmt.Println("Данные некорректны. Обновление сотрудника не удалось")
+		return c.Render()
+	}
+
+	err := providers.UpdateEmploy(Id, Surname, Name, Position)
 	if err != nil {
 		fmt.Println(err)
 	}

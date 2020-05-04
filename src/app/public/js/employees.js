@@ -21,6 +21,7 @@ const xhrRequestEmployee = {
                 $$('tableActiveEmployees').add(employee);
             }
         }).finally( () => xhrRequestTask.xhrGetTask() )
+          .catch(error => alert(error.message));
     },
 
     xhrAddEmployees: function(valueForm) {
@@ -32,7 +33,7 @@ const xhrRequestEmployee = {
             $$('tableActiveEmployees').add(newEmploy);
             webix.message('Сотрудник добавлен');
             return;
-        });
+        }).catch(error => alert(error.message));
     },
 
     xhrDelEmployees: function(id, idEmployee) {
@@ -45,8 +46,7 @@ const xhrRequestEmployee = {
             }
             webix.message('Сотрудник удалён');
             $$('tableActiveEmployees').remove(id);
-            console.log(massEmployees)
-        });
+        }).catch(error => alert(error.message));
     },
 
     xhrUpdateEmployees: function(valueForm) {
@@ -60,7 +60,7 @@ const xhrRequestEmployee = {
             }
             $$('tableActiveEmployees').updateItem(valueForm.id, valueForm);
             return;
-        });
+        }).catch(error => alert(error.message));
     },
 };
 

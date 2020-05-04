@@ -4,3 +4,6 @@ port: 5432
 Доступ к приложению:
 email: andrej.udentsov@yandex.ru
 password: 111111
+
+email: and-uden@yandex.ru
+password: 222222

@@ -11,7 +11,7 @@ type App struct {
 }
 
 func (c App) Index() revel.Result {
-	if !app.GetSessionById(c.Session.ID()) {
+	if !app.GetSession(c.Session.ID()) {
 		return c.Redirect((*Authenticate).Sign)
 	}
 	return c.Render()
