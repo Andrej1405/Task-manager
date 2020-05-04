@@ -250,7 +250,8 @@ function showProject() {
             break;
             case 'Отменено':
                 actualstatus = [
-                    {value: 'Отменено'}
+                    {value: 'Отменено'},
+                    {value: 'Закрыто'}
                 ];
             break;
         }
