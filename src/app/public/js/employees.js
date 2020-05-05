@@ -7,8 +7,10 @@ class Employee {
     }
 }
 
+// Массив для хранения существующих сотрудников.
 let massEmployees = [];
 
+// Объект, содеражщий асинхронные запросы.
 const xhrRequestEmployee = {
     xhrGetEmployees: function() {
         webix.ajax().get('getEmployee').then(function(data) {
@@ -64,7 +66,7 @@ const xhrRequestEmployee = {
     },
 };
 
-// Блок сайта, отвечающий за представление списка сотрудников. Состоит из меню и таблицы
+// Блок сайта, отвечающий за представление списка сотрудников.
 let activeEmployees = {
     rows: [
         {
@@ -132,7 +134,7 @@ function addNewEmployee() {
     }
 }).show();
 
-    // Добавление нового сотрудника в базу данных и таблицу на сайте
+    // Добавление нового сотрудника.
     function addEmployee() {
         if ( $$('newEmployee').validate() ) {
             let dataEmployee = $$('newEmployee').getValues();
@@ -151,7 +153,7 @@ function addNewEmployee() {
         }
     }
 
-    // Закрытие окна без сохранения изменений.
+    // Закрытие окна без сохранения.
     function canselEmployee() {
         $$('newEmployee').clear();
         $$('newEmployees').hide();
@@ -159,6 +161,7 @@ function addNewEmployee() {
     }
 }
 
+// Окно просмотра карточки сотрудника для возможного редактировния данных и удаления сотрудника.
 function showEmployeeCard(id) {
     webix.ui({
         view: 'window',
@@ -195,7 +198,8 @@ function showEmployeeCard(id) {
 
     let values = $$('tableActiveEmployees').getItem(id);
     $$('cardEmployee').setValues(values);
-
+    
+    // Удаление сотрудника.
     function deleteEmployee() {
         webix.confirm({
             title: 'Сотрудник будет удалён',
@@ -212,6 +216,7 @@ function showEmployeeCard(id) {
         });
     }
 
+    // Сохранение внесённых изменения.
     function saveEmployee() {
         if ( $$('cardEmployee').validate()) {
             let newValues = $$('cardEmployee').getValues();
@@ -229,10 +234,12 @@ function showEmployeeCard(id) {
         }
     }
     
+    // Закрытие карточки сотрудника без сохранения изменений.
     function canselEmployee() {
         $$('editEmployee').hide();
         return;
     }
 }
 
+// Асинхронный запрос к базе для получения списка сотрудников после окончания построения DOM-дерева.
 document.addEventListener('DOMContentLoaded', xhrRequestEmployee.xhrGetEmployees);

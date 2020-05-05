@@ -8,12 +8,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func NewUser(email, password string) (err error) {
+type UserProvider struct {
+	mapper *mappers.UserMapper
+}
+
+func (u *UserProvider) NewUser(email, password string) (err error) {
 	password = HashPassword([]byte(password))
 
 	user := &entities.User{Email: email, Password: password}
 
-	err = mappers.AddNewUser(user)
+	err = u.mapper.AddNewUser(user)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -25,7 +29,7 @@ func NewUser(email, password string) (err error) {
 func HashPassword(pass []byte) (password string) {
 	hashedPassword, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	err = bcrypt.CompareHashAndPassword(hashedPassword, pass)

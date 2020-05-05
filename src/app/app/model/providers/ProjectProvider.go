@@ -6,11 +6,15 @@ import (
 	"fmt"
 )
 
-func UpdateProj(id, name string) (err error) {
-	project := mappers.GetProjectById(id)
+type ProjectProvider struct {
+	mapper *mappers.ProjectMapper
+}
+
+func (p *ProjectProvider) UpdateProj(id, name string) (err error) {
+	project := p.mapper.GetProjectById(id)
 	project.Name = name
 
-	err = mappers.ProjectUpdate(&project)
+	err = p.mapper.ProjectUpdate(&project)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -18,10 +22,10 @@ func UpdateProj(id, name string) (err error) {
 	return err
 }
 
-func NewProject(name string) (id int) {
+func (p *ProjectProvider) NewProject(name string) (id int) {
 	project := &entities.Project{Name: name}
 
-	id, err := mappers.ProjectAdd(project)
+	id, err := p.mapper.ProjectAdd(project)
 	if err != nil {
 		fmt.Println(err)
 	}

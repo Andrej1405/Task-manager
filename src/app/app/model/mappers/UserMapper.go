@@ -9,7 +9,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GetUserByEmail(email string) (user entities.User, err error) {
+type UserMapper struct {
+}
+
+func (u *UserMapper) GetUserByEmail(email string) (user entities.User, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -29,7 +32,7 @@ func GetUserByEmail(email string) (user entities.User, err error) {
 	return user, err
 }
 
-func AddNewUser(user *entities.User) (err error) {
+func (u *UserMapper) AddNewUser(user *entities.User) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -45,8 +48,8 @@ func AddNewUser(user *entities.User) (err error) {
 	return err
 }
 
-func AutoriseUser(email, password string) bool {
-	user, err := GetUserByEmail(email)
+func (u *UserMapper) AutoriseUser(email, password string) bool {
+	user, err := u.GetUserByEmail(email)
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err == nil {

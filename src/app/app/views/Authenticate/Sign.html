@@ -11,6 +11,7 @@
 </head>
 <body>
     <script>
+        // Объект, содержащий асинхронные запросы.
         const xhrRequestUser = {
             xhrAddUser: function(valueForm) {
                 webix.ajax().post('/authentication/:id/registration', valueForm).then(function(message) {
@@ -55,6 +56,7 @@
             },
         };
 
+        // Окно регистрации нового пользователя.
         function registrUser() {
             webix.ui({
             view: 'window',
@@ -72,8 +74,8 @@
                 },
                 elements: [
                     { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введите ваш email', validate: webix.rules.isEmail },
-                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Пароль должен быть больше 6 символов', validate: webix.rules.isNotEmpty },
-                    { view: 'text', type: 'password', label: 'Подтвердите пароль', name: 'confirmPassword', invalidMessage: 'Пароли не совпадают', validate: webix.rules.isNotEmpty },
+                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Пароль должен быть больше 6 символов',  },
+                    { view: 'text', type: 'password', label: 'Подтвердите пароль', name: 'confirmPassword', invalidMessage: 'Пароли не совпадают', },
                     { margin: 5, cols: [
                     { view: 'button', value: 'Зарегистрироваться', minWidth: 100, css: 'webix_primary', click: addNewUser },
                     { view: 'button', value: 'Отмена' , minWidth: 70, css: 'webix_primary', click: closeForm },
@@ -104,6 +106,7 @@
             }
         }).show();
 
+        // Если введённые данные проходят валидацию, отправляется асинхронный для регистрации пользователя.
         function addNewUser() {
             if ( $$('dataNewUser').validate() ) {
                 let dataUser = $$('dataNewUser').getValues();
@@ -127,61 +130,62 @@
         }
     }
 
-        let authenticateForm = {
-                view: 'form', 
-                id: 'formAuthenticate',
-                scroll: false,
-                css: { margin:"auto" },
-                css: 'webix_shadow_big',
-                width: 370,
-                padding: 30,
-                elementsConfig: {
-                    labelWidth: 80
+    // Форма для регистрации нового пользователя и входа в приложение.
+    let authenticateForm = {
+        view: 'form', 
+        id: 'formAuthenticate',
+        scroll: false,
+        css: { margin:"auto" },
+        css: 'webix_shadow_big',
+        width: 370,
+        padding: 30,
+        elementsConfig: {
+            labelWidth: 80
+        },
+            elements: [
+                { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введён некорректный email', validate: webix.rules.isEmail },
+                { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Введён некорретный пароль' },
+                {   cols: [
+                    { view: 'button', value: 'Войти' , minWidth: 70, css: 'webix_primary', click: login },
+                    { view: 'button', value: 'Регистрация' , minWidth: 70, css: 'webix_primary', click: registrUser },
+                ]
+
+                }      
+        ],
+            rules: {
+                Password: function(value) {
+                    let regexp = /[0-9a-zA-Z!@#$%^&*-]{6,}/;
+
+                    if (regexp.test(value)) {
+                        return value
+                    }   
                 },
-                elements: [
-                    { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введён некорректный email', validate: webix.rules.isEmail },
-                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Введён некорретный пароль' },
-                    {   cols: [
-                        { view: 'button', value: 'Войти' , minWidth: 70, css: 'webix_primary', click: login },
-                        { view: 'button', value: 'Регистрация' , minWidth: 70, css: 'webix_primary', click: registrUser },
+            },
+            on: {
+                onValidationError: function (key, obj) {
+                    textMessage = 'Введены некорректные данные';
+                    webix.message( { type:"error", text: textMessage } );
+                }
+            }    
+    };
+
+    webix.ready(function() {
+        webix.ui({
+            cols:[
+                {},
+
+                { rows:
+                    [
+                        {}, 
+                        authenticateForm, 
+                        {}
                     ]
-
-                    }      
-            ],
-                rules: {
-                    Password: function(value) {
-                        let regexp = /[0-9a-zA-Z!@#$%^&*-]{6,}/;
-
-                        if (regexp.test(value)) {
-                            return value
-                        }   
-                    },
                 },
-                on: {
-                    onValidationError: function (key, obj) {
-                        textMessage = 'Введены некорректные данные';
-                        webix.message( { type:"error", text: textMessage } );
-                    }
-                }    
-        };
-
-        webix.ready(function() {
-            webix.ui({
-                cols:[
-                    {},
-
-                    { rows:
-                        [
-                            {}, 
-                            authenticateForm, 
-                            {}
-                        ]
-                    },
                      
-                    {}
-                ]      
-            });
+                {}
+            ]      
         });
+    });
 
     </script>
 </body>

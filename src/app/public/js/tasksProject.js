@@ -10,9 +10,10 @@ class Task {
         this.TaskDescription = dataTask.TaskDescription;
     }
 }
-
+// Массив для хранения существующих задач.
 const massTasks = [];
 
+// Объект, содержащий асинхронные запросы.
 const xhrRequestTask = {
     xhrGetTask: function() {
         webix.ajax().get('getTask').then(function(data) {
@@ -43,7 +44,7 @@ const xhrRequestTask = {
     xhrUpdateTask: function(valueForm) {
         webix.ajax().post('/task/:id/update', valueForm).then(function(data) {
             for ( let i = 0; i < massEmployees.length; i++ ) {
-                if( valueForm.DesignatedEmployee == massEmployees[i].Id) {
+                if ( valueForm.DesignatedEmployee == massEmployees[i].Id) {
                     valueForm.DesignatedEmployee = `${massEmployees[i].Surname} ${massEmployees[i].Name}`;
                 }
             }
@@ -64,6 +65,7 @@ const xhrRequestTask = {
     },
 };
 
+// Основное окно, отображающее задачи выбранного проекта.
 function showProject() {
     webix.ui({
         view: 'window',
@@ -105,10 +107,11 @@ function showProject() {
             ]
         }
     }).show();
-
+    // Получение Id выбранного проекта для отображения задач по этому проекту.
     const activeProject = $$('tableActiveProjects').getSelectedItem(),
           idActiveProject = activeProject.Id;
 
+    // Массив, хранящий в себе задачи со статусом "Закрыто" и массив сотрудников для удобного вывода Фамилии-Имени сотрудника в форме и окне задач.
     let massHide = [],
         employeesInvolved = [];
     
@@ -144,6 +147,7 @@ function showProject() {
         return;
     }
 
+    // Отображение / скрытие задач со статусом "Закрыто".
     function hideShow() {
         for ( let i = 0; i < massHide.length; i++ ) {  
             let item = $$('tableTasksProject').getItem(massHide[i].id);
@@ -155,7 +159,8 @@ function showProject() {
             });
         }
     }
-    //////////////////////////////////////////////////////////////
+
+    // Окно добавления новой задачи.
     function addTask() {
         webix.ui({
             view: 'window',
@@ -196,7 +201,8 @@ function showProject() {
                 }
             }
         }).show();
-    
+
+        // Сохранение новой задачи
         function saveTask() {
             if ( $$('newTask').validate() ) {
                 let dataTask = $$('newTask').getValues();
@@ -208,7 +214,8 @@ function showProject() {
                 return;
             }
         }
-    
+
+        // Закрытие формы без сохранения.
         function canselSaveTask() {
             $$('newTask').clear();
             $$('addNewTask').hide();
@@ -216,12 +223,16 @@ function showProject() {
         }
         
     }
-    //////////////////////////////////////////////
+    
+    // Получение информации по задаче для вывода её в форму.
     function showTask(id) {
         let values = $$('tableTasksProject').getItem(id),
             status = values.StatusTask,
             actualstatus;
 
+        /* В зависимости от выбранного статуса будет определённый перечень статусов, доступных для дальнейшего выбора в задаче. Добавлено для последовательного
+         изменения статусов задач.
+        */
         switch(status) {
             case 'Назначено': 
                 actualstatus = [
@@ -255,7 +266,7 @@ function showProject() {
                 ];
             break;
         }
-        
+        // Форма редактирования задачи.
         webix.ui({
             view: 'window',
             id: 'showTask',
@@ -312,7 +323,7 @@ function showProject() {
                 let dataTask = $$('cardTask').getValues();
                 
                 xhrRequestTask.xhrUpdateTask(dataTask);
-
+                // Если статус задачи "Закрыто", то задача добавляется в массив зада, которые скрываются / отображаются нажатием кнопки.
                 if (dataTask.StatusTask == 'Закрыто') {
                     for ( let i = 0; i < massTasks.length; i++ ) {
                         if (massTasks[i].IdTask == dataTask.IdTask) {

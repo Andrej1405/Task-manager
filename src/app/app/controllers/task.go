@@ -21,11 +21,11 @@ func (c ControllerTask) GetTask() revel.Result {
 	return c.RenderJSON(tasks)
 }
 
-func (c ControllerTask) AddNewTask(Task string, DesignatedEmployee string, Hours, HoursSpent int, StatusTask string, TaskDescription string, Id_project int) revel.Result {
+func (c ControllerTask) AddNewTask(Task, DesignatedEmployee string, Hours, HoursSpent int, StatusTask, TaskDescription string, Id_project int) revel.Result {
 	if Task == "" || DesignatedEmployee == "" || Hours == 0 || StatusTask == "" || TaskDescription == "" ||
 		Id_project == 0 {
 		fmt.Println("Данные введены некорректно. Добавить сотрудника не удалось")
-		c.Render()
+		return c.Render()
 	}
 
 	idDesignatedEmployee := providers.GetIdDesignatedEmployee(DesignatedEmployee)
@@ -35,11 +35,11 @@ func (c ControllerTask) AddNewTask(Task string, DesignatedEmployee string, Hours
 	return c.RenderJSON(id)
 }
 
-func (c ControllerTask) UpdateTask(DesignatedEmployee string, Hours int, HoursSpent int, IdTask, Id_project, StatusTask, Task, TaskDescription string) revel.Result {
+func (c ControllerTask) UpdateTask(DesignatedEmployee string, Hours, HoursSpent int, IdTask, Id_project, StatusTask, Task, TaskDescription string) revel.Result {
 	if Task == "" || DesignatedEmployee == "" || Hours == 0 || StatusTask == "" || TaskDescription == "" ||
 		Id_project == "" || IdTask == "" {
 		fmt.Println("Данные введены некорректно. Обновить информацию по сотруднику не удалось")
-		c.Render()
+		return c.Render()
 	}
 
 	err := providers.UpdatingTask(DesignatedEmployee, Hours, HoursSpent, IdTask, Id_project, StatusTask, Task, TaskDescription)

@@ -7,7 +7,11 @@ import (
 	"fmt"
 )
 
-func GetAllTask() (tasks []entities.Task, err error) {
+type TaskMapper struct {
+	mapper *EmployeeMapper
+}
+
+func (t *TaskMapper) GetAllTask() (tasks []entities.Task, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -28,7 +32,7 @@ func GetAllTask() (tasks []entities.Task, err error) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		designatedEmployee, err := GetEmployeeById(task.DesignatedEmployee)
+		designatedEmployee, err := t.mapper.GetEmployeeById(task.DesignatedEmployee)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -39,7 +43,7 @@ func GetAllTask() (tasks []entities.Task, err error) {
 	return tasks, err
 }
 
-func GetTaskById(id string) (task entities.Task, err error) {
+func (t *TaskMapper) GetTaskById(id string) (task entities.Task, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -60,7 +64,7 @@ func GetTaskById(id string) (task entities.Task, err error) {
 	return task, err
 }
 
-func TaskUpdate(task *entities.Task) (err error) {
+func (t *TaskMapper) TaskUpdate(task *entities.Task) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -73,7 +77,7 @@ func TaskUpdate(task *entities.Task) (err error) {
 	return
 }
 
-func TaskAdd(task *entities.Task) (id int, err error) {
+func (t *TaskMapper) TaskAdd(task *entities.Task) (id int, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)

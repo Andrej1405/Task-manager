@@ -7,7 +7,11 @@ import (
 	"fmt"
 )
 
-func GetAllProject() (projects []entities.Project, err error) {
+type ProjectMapper struct {
+}
+
+// Получение всех проектов из базы данных.
+func (p *ProjectMapper) GetAllProject() (projects []entities.Project, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -34,7 +38,8 @@ func GetAllProject() (projects []entities.Project, err error) {
 	return projects, err
 }
 
-func GetProjectById(id string) (project entities.Project) {
+// Получение проекта по его id из базы данных.
+func (p *ProjectMapper) GetProjectById(id string) (project entities.Project) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -54,7 +59,8 @@ func GetProjectById(id string) (project entities.Project) {
 	return project
 }
 
-func ProjectAdd(project *entities.Project) (id int, err error) {
+// Добавление нового проекта.
+func (p *ProjectMapper) ProjectAdd(project *entities.Project) (id int, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -63,8 +69,7 @@ func ProjectAdd(project *entities.Project) (id int, err error) {
 
 	query := `INSERT INTO projects (name) VALUES ($1) returning id`
 
-	db.QueryRow(query, project.Name).Scan(&id)
-
+	err = db.QueryRow(query, project.Name).Scan(&id)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -72,7 +77,8 @@ func ProjectAdd(project *entities.Project) (id int, err error) {
 	return id, err
 }
 
-func ProjectUpdate(project *entities.Project) (err error) {
+// Обновление информации по преокту.
+func (p *ProjectMapper) ProjectUpdate(project *entities.Project) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -86,7 +92,8 @@ func ProjectUpdate(project *entities.Project) (err error) {
 	return
 }
 
-func ProjectDelete(id string) (err error) {
+// Удаление проекта.
+func (p *ProjectMapper) ProjectDelete(id string) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)

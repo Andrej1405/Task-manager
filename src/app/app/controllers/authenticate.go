@@ -23,7 +23,6 @@ func (c Authenticate) Sign() revel.Result {
 func (c Authenticate) Registration(Email, Password string) revel.Result {
 	if Email == "" || Password == "" {
 		message := "Данные некорректны. Добавить нового пользователя не удалось"
-		fmt.Println(message)
 		return c.RenderJSON(message)
 	}
 

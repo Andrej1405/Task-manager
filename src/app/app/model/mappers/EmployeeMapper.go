@@ -7,7 +7,11 @@ import (
 	"fmt"
 )
 
-func GetAllEmployees() (employees []entities.Employee, err error) {
+type EmployeeMapper struct {
+}
+
+// Получение всех сотрудников из базы данных.
+func (e *EmployeeMapper) GetAllEmployees() (employees []entities.Employee, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -34,7 +38,8 @@ func GetAllEmployees() (employees []entities.Employee, err error) {
 	return employees, err
 }
 
-func GetEmployeeById(employeeId string) (employee entities.Employee, err error) {
+// Поиск сотрудника по его Id.
+func (e *EmployeeMapper) GetEmployeeById(id string) (employee entities.Employee, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -42,7 +47,7 @@ func GetEmployeeById(employeeId string) (employee entities.Employee, err error) 
 	defer db.Close()
 
 	query := `SELECT * FROM employees WHERE id = $1`
-	row := db.QueryRow(query, employeeId)
+	row := db.QueryRow(query, id)
 
 	err = row.Scan(&employee.Id, &employee.Surname, &employee.Name, &employee.Position)
 	if err != nil {
@@ -52,7 +57,8 @@ func GetEmployeeById(employeeId string) (employee entities.Employee, err error) 
 	return employee, err
 }
 
-func GetEmployeeBySurnameName(surname, name string) (employee entities.Employee, err error) {
+// Получение сотрудника по его имени и фамилии.
+func (e *EmployeeMapper) GetEmployeeBySurnameName(surname, name string) (employee entities.Employee, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -72,7 +78,8 @@ func GetEmployeeBySurnameName(surname, name string) (employee entities.Employee,
 	return employee, err
 }
 
-func EmployeeAdd(employee *entities.Employee) (id int, err error) {
+// Добавление нового сотрудника.
+func (e *EmployeeMapper) EmployeeAdd(employee *entities.Employee) (id int, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -88,7 +95,8 @@ func EmployeeAdd(employee *entities.Employee) (id int, err error) {
 	return id, err
 }
 
-func EmployeeUpdate(employee *entities.Employee) (err error) {
+// Обновление информации о сотруднике.
+func (e *EmployeeMapper) EmployeeUpdate(employee *entities.Employee) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
@@ -102,7 +110,8 @@ func EmployeeUpdate(employee *entities.Employee) (err error) {
 	return
 }
 
-func EmployeeDelete(employeeId string) (err error) {
+// Удаление сотрудника.
+func (e *EmployeeMapper) EmployeeDelete(employeeId string) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)

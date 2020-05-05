@@ -5,8 +5,10 @@ class Project {
     }
 }
 
+// Массив для хранения существующих проектов.
 let massProjects = [];
-    
+
+// Объект, содержащий асинхронные запросы.
 const xhrRequestProject = {
     xhrGetProjects: function() {
         webix.ajax().get('getProject').then(function(data) {
@@ -60,7 +62,7 @@ const xhrRequestProject = {
     }
 };
 
-// Основная компонента проектов. Состоит из меню для управления и таблицы для вывода данных.
+// Основная компонента проектов. Состоит из меню управления и таблицы для вывода данных.
 let activeProjects = {
     rows: [
     {
@@ -134,6 +136,7 @@ function addProject() {
         }
     }).show();
 
+    // Добавление нового проекта. Если проекта с таким названием уже существует, выводится сообщение об этом и окно закрывается бех сохранения.
     function addNewProject() {
         if ( $$('newProject').validate() ) {
             let dataProject = $$('newProject').getValues();
@@ -153,6 +156,7 @@ function addProject() {
         }
     }
 
+    // Закрытие окна с формой добавления нового проекта без сохранения.
     function canselAddProject() {
         $$('newProject').clear();
         $$('newProjects').hide();
@@ -233,4 +237,5 @@ function deleteProject() {
     }
 }
 
+// Асинхронный запрос к базе для получения списка проектов после окончания построения DOM-дерева.
 document.addEventListener('DOMContentLoaded', xhrRequestProject.xhrGetProjects);
