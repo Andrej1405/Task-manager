@@ -6,45 +6,45 @@ class Project {
 }
 
 // Массив для хранения существующих проектов.
-let massProjects = [];
+const massProjects = [];
 
 // Объект, содержащий асинхронные запросы.
 const xhrRequestProject = {
     xhrGetProjects: function() {
         webix.ajax().get('getProject').then(function(data) {
             data = data.json();
-            
             for ( let i = 0; i < data.length; i++ ) {
                 let project = new Project(data[i].Id, data[i]);
 
                 massProjects.push(project);
                 $$('tableActiveProjects').add(project);
             }
-        });
+        }).catch( error => showError(error) );
     },
 
     xhrUpdateProject: function(valueForm) {
         webix.ajax().post('/project/:id/update', valueForm).then(function() {
             for ( let i = 0; i < massProjects.length; i++ ) {
-                if (massProjects[i].Id == valueForm.Id) {
+                if ( massProjects[i].Id == valueForm.Id ) {
                     massProjects[i].Name = valueForm.Name;
                 }
             }
             $$('tableActiveProjects').updateItem(valueForm.id, valueForm);
             return;
-        });
+        }).catch( error => showError(error) );
     },
 
     xhrAddProject: function(valueForm) {
         webix.ajax().post('/project/add', valueForm).then(function(data) {
-            let id = data.json();
-            const newProject = new Project(id, valueForm);
+            const id = data.json(),
+                  newProject = new Project(id, valueForm);
+                  console.log(newProject)
 
             massProjects.push(newProject);
             $$('tableActiveProjects').add(newProject);
             webix.message('Проект создан');
             return;
-        });
+        }).catch( error => showError(error) );
     },
 
     xhrDelProject: function(id, idProject) {
@@ -58,35 +58,27 @@ const xhrRequestProject = {
 
             webix.message('Проект удалён');
             $$('tableActiveProjects').remove(id);
-        });
+        }).catch(error => showError(error));
     }
 };
+
+function showError(err) {
+    webix.message({
+        text: err,
+        type: 'error', 
+        expire: 10000,
+        id: 'message6'
+    });
+}
 
 // Основная компонента проектов. Состоит из меню управления и таблицы для вывода данных.
 let activeProjects = {
     rows: [
     {
         cols: [
-            {
-                view: 'button', id: 'addButton', value: 'Добавить проект', autowidth: true, 
-                on: {
-                    'onItemClick': addProject
-                }
-            },
-
-            {
-                view: 'button', id: 'editButton', value: 'Изменить проект', autowidth: true, 
-                on: {
-                    'onItemClick': editProject
-                }
-            },
-
-            {
-                view: 'button', id: 'delProject', value: 'Удалить проект', autowidth: true, 
-                on: {
-                    'onItemClick': deleteProject
-                }
-            },
+            { view: 'button', id: 'addButton', value: 'Добавить проект', autowidth: true, click: addProject },
+            { view: 'button', id: 'editButton', value: 'Изменить проект', autowidth: true, click:  editProject },
+            { view: 'button', id: 'delProject', value: 'Удалить проект', autowidth: true, click: deleteProject },
         ]
     }, 
         {

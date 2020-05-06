@@ -8,7 +8,7 @@ class Employee {
 }
 
 // Массив для хранения существующих сотрудников.
-let massEmployees = [];
+const massEmployees = [];
 
 // Объект, содеражщий асинхронные запросы.
 const xhrRequestEmployee = {
@@ -23,7 +23,7 @@ const xhrRequestEmployee = {
                 $$('tableActiveEmployees').add(employee);
             }
         }).finally( () => xhrRequestTask.xhrGetTask() )
-          .catch(error => alert(error.message));
+          .catch( error => showError(error) );
     },
 
     xhrAddEmployees: function(valueForm) {
@@ -35,7 +35,7 @@ const xhrRequestEmployee = {
             $$('tableActiveEmployees').add(newEmploy);
             webix.message('Сотрудник добавлен');
             return;
-        }).catch(error => alert(error.message));
+        }).catch( error => showError(error) );
     },
 
     xhrDelEmployees: function(id, idEmployee) {
@@ -48,7 +48,7 @@ const xhrRequestEmployee = {
             }
             webix.message('Сотрудник удалён');
             $$('tableActiveEmployees').remove(id);
-        }).catch(error => alert(error.message));
+        }).catch( error => showError(error) );
     },
 
     xhrUpdateEmployees: function(valueForm) {
@@ -62,21 +62,25 @@ const xhrRequestEmployee = {
             }
             $$('tableActiveEmployees').updateItem(valueForm.id, valueForm);
             return;
-        }).catch(error => alert(error.message));
+        }).catch( error => showError(error) );
     },
 };
+
+function showError(err) {
+    webix.message({
+        text: err,
+        type: 'error', 
+        expire: 10000,
+        id: 'message4'
+    });
+}
 
 // Блок сайта, отвечающий за представление списка сотрудников.
 let activeEmployees = {
     rows: [
         {
         cols: [
-                {
-                view: 'button', id: 'addEmployee', value: 'Добавить сотрудника', autowidth: true,
-                on: {
-                    'onItemClick': addNewEmployee
-                    }
-                }
+                { view: 'button', id: 'addEmployee', value: 'Добавить сотрудника', autowidth: true, click: addNewEmployee }
              ]
         }, 
 
@@ -208,6 +212,17 @@ function showEmployeeCard(id) {
             let dataEmployee = $$('cardEmployee').getValues();
             idEmployee = dataEmployee.Id;
 
+            for ( let i = 0; i < massTasks.length; i++ ) {
+               if ( massTasks[i].DesignatedEmployee == `${dataEmployee.Surname} ${dataEmployee.Name}`) {
+                    textMessage = 'Данный сотрудник назначен на задачу. Удалить можно после снятия сотрудника со всех задач';
+                    webix.message( { type:"error", text: textMessage } );
+
+                    $$('cardEmployee').clear();
+                    $$('editEmployee').hide();
+                    return;
+               }
+            }
+            
             xhrRequestEmployee.xhrDelEmployees(id, idEmployee);
 
             $$('cardEmployee').clear();

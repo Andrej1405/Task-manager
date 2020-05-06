@@ -5,11 +5,10 @@ import (
 	"app/app/model/entities"
 	"database/sql"
 	"fmt"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserMapper struct {
+	User entities.User
 }
 
 func (u *UserMapper) GetUserByEmail(email string) (user entities.User, err error) {
@@ -46,14 +45,4 @@ func (u *UserMapper) AddNewUser(user *entities.User) (err error) {
 	}
 
 	return err
-}
-
-func (u *UserMapper) AutoriseUser(email, password string) bool {
-	user, err := u.GetUserByEmail(email)
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err == nil {
-		return true
-	}
-	return false
 }

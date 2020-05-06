@@ -10,6 +10,7 @@ class Task {
         this.TaskDescription = dataTask.TaskDescription;
     }
 }
+
 // Массив для хранения существующих задач.
 const massTasks = [];
 
@@ -23,7 +24,7 @@ const xhrRequestTask = {
                 massTasks.push(task);
             }
             return;
-        });
+        }).catch( error => showError(error) );
     },
 
     xhrAddTask: function(idActiveProject, valueForm) {
@@ -38,9 +39,9 @@ const xhrRequestTask = {
             $$('tableTasksProject').add(task);
             webix.message('Задача добавлена');
             return;
-        });
+        }).catch( error => showError(error) );
     },
-    ///////добавить случаи, когда запрос не удался и вернулся отрицательный ответ
+    
     xhrUpdateTask: function(valueForm) {
         webix.ajax().post('/task/:id/update', valueForm).then(function(data) {
             for ( let i = 0; i < massEmployees.length; i++ ) {
@@ -61,9 +62,18 @@ const xhrRequestTask = {
             
             $$('tableTasksProject').updateItem(valueForm.id, valueForm);
             return;
-        });
+        }).catch( error => showError(error) );
     },
 };
+
+function showError(err) {
+    webix.message({
+        text: err,
+        type: 'error', 
+        expire: 10000,
+        id: 'message5'
+    });
+}
 
 // Основное окно, отображающее задачи выбранного проекта.
 function showProject() {
@@ -73,6 +83,7 @@ function showProject() {
         id: 'tasksProject',
         close: true,
         fullscreen: true,
+        // Таблица задач.
         body: {
             rows: [
                 {
@@ -107,6 +118,7 @@ function showProject() {
             ]
         }
     }).show();
+
     // Получение Id выбранного проекта для отображения задач по этому проекту.
     const activeProject = $$('tableActiveProjects').getSelectedItem(),
           idActiveProject = activeProject.Id;
@@ -128,7 +140,7 @@ function showProject() {
         if ( massTasks[i].Id_project == idActiveProject ) {
             $$('tableTasksProject').add(massTasks[i]);
 
-            if (massTasks[i].StatusTask == 'Закрыто') {
+            if ( massTasks[i].StatusTask == 'Закрыто') {
                 massHide.push(massTasks[i]);
 
                 let item = $$('tableTasksProject').getItem(massTasks[i].id);
@@ -323,8 +335,8 @@ function showProject() {
                 let dataTask = $$('cardTask').getValues();
                 
                 xhrRequestTask.xhrUpdateTask(dataTask);
-                // Если статус задачи "Закрыто", то задача добавляется в массив зада, которые скрываются / отображаются нажатием кнопки.
-                if (dataTask.StatusTask == 'Закрыто') {
+                // Если статус задачи "Закрыто", то задача добавляется в массив задач, которые скрываются / отображаются нажатием кнопки.
+                if ( dataTask.StatusTask == 'Закрыто' ) {
                     for ( let i = 0; i < massTasks.length; i++ ) {
                         if (massTasks[i].IdTask == dataTask.IdTask) {
                             massHide.push(massTasks[i]);

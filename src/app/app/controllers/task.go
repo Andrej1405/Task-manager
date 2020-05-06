@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	mappers "app/app/model/mappers"
 	"app/app/model/providers"
 	"fmt"
 
@@ -10,17 +9,24 @@ import (
 
 type ControllerTask struct {
 	*revel.Controller
+	provider         *providers.TaskProvider
+	providerEmployee *providers.EmployeeProvider
 }
 
+// Получение задач и возвращение их на фронт.
 func (c ControllerTask) GetTask() revel.Result {
-	tasks, err := mappers.GetAllTask()
+	c.provider = new(providers.TaskProvider)
+
+	tasks, err := c.provider.GetAllTasks()
 	if err != nil {
 		fmt.Println(err)
+		return c.RenderError(err)
 	}
 
 	return c.RenderJSON(tasks)
 }
 
+// Добавление новой задачи. Возвращает id новой задачи на фронт.
 func (c ControllerTask) AddNewTask(Task, DesignatedEmployee string, Hours, HoursSpent int, StatusTask, TaskDescription string, Id_project int) revel.Result {
 	if Task == "" || DesignatedEmployee == "" || Hours == 0 || StatusTask == "" || TaskDescription == "" ||
 		Id_project == 0 {
@@ -28,13 +34,24 @@ func (c ControllerTask) AddNewTask(Task, DesignatedEmployee string, Hours, Hours
 		return c.Render()
 	}
 
-	idDesignatedEmployee := providers.GetIdDesignatedEmployee(DesignatedEmployee)
+	c.providerEmployee = new(providers.EmployeeProvider)
+	idDesignatedEmployee, err := c.providerEmployee.GetIdDesignatedEmployee(DesignatedEmployee)
+	if err != nil {
+		fmt.Println(err)
+		return c.RenderError(err)
+	}
 
-	id := providers.NewTask(Id_project, Task, idDesignatedEmployee, Hours, HoursSpent, StatusTask, TaskDescription)
+	c.provider = new(providers.TaskProvider)
+	id, err := c.provider.NewTask(Id_project, Task, idDesignatedEmployee, Hours, HoursSpent, StatusTask, TaskDescription)
+	if err != nil {
+		fmt.Println(err)
+		return c.RenderError(err)
+	}
 
 	return c.RenderJSON(id)
 }
 
+// Обновление существующей задачи.
 func (c ControllerTask) UpdateTask(DesignatedEmployee string, Hours, HoursSpent int, IdTask, Id_project, StatusTask, Task, TaskDescription string) revel.Result {
 	if Task == "" || DesignatedEmployee == "" || Hours == 0 || StatusTask == "" || TaskDescription == "" ||
 		Id_project == "" || IdTask == "" {
@@ -42,9 +59,12 @@ func (c ControllerTask) UpdateTask(DesignatedEmployee string, Hours, HoursSpent 
 		return c.Render()
 	}
 
-	err := providers.UpdatingTask(DesignatedEmployee, Hours, HoursSpent, IdTask, Id_project, StatusTask, Task, TaskDescription)
+	c.provider = new(providers.TaskProvider)
+
+	err := c.provider.UpdatingTask(DesignatedEmployee, Hours, HoursSpent, IdTask, Id_project, StatusTask, Task, TaskDescription)
 	if err != nil {
 		fmt.Println(err)
+		return c.RenderError(err)
 	}
 
 	return c.Render()

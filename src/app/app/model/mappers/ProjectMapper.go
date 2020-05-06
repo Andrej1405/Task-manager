@@ -8,13 +8,15 @@ import (
 )
 
 type ProjectMapper struct {
+	Project *entities.Project
 }
 
 // Получение всех проектов из базы данных.
-func (p *ProjectMapper) GetAllProject() (projects []entities.Project, err error) {
+func (m *ProjectMapper) GetProjectFromBase() (projects []entities.Project, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
 	defer db.Close()
 
@@ -22,6 +24,7 @@ func (p *ProjectMapper) GetAllProject() (projects []entities.Project, err error)
 	rows, err := db.Query(query)
 	if err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -31,6 +34,7 @@ func (p *ProjectMapper) GetAllProject() (projects []entities.Project, err error)
 		err = rows.Scan(&project.Id, &project.Name)
 		if err != nil {
 			fmt.Println(err)
+			return nil, err
 		}
 		projects = append(projects, project)
 	}
@@ -39,10 +43,11 @@ func (p *ProjectMapper) GetAllProject() (projects []entities.Project, err error)
 }
 
 // Получение проекта по его id из базы данных.
-func (p *ProjectMapper) GetProjectById(id string) (project entities.Project) {
+func (m *ProjectMapper) GetProjectById(id string) (project entities.Project, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return project, err
 	}
 	defer db.Close()
 
@@ -54,16 +59,18 @@ func (p *ProjectMapper) GetProjectById(id string) (project entities.Project) {
 	err = row.Scan(&project.Id, &project.Name)
 	if err != nil {
 		fmt.Println(err)
+		return project, err
 	}
 
-	return project
+	return project, err
 }
 
 // Добавление нового проекта.
-func (p *ProjectMapper) ProjectAdd(project *entities.Project) (id int, err error) {
+func (m *ProjectMapper) ProjectAdd(project *entities.Project) (id int, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return 0, err
 	}
 	defer db.Close()
 
@@ -72,16 +79,18 @@ func (p *ProjectMapper) ProjectAdd(project *entities.Project) (id int, err error
 	err = db.QueryRow(query, project.Name).Scan(&id)
 	if err != nil {
 		fmt.Println(err)
+		return 0, err
 	}
 
 	return id, err
 }
 
-// Обновление информации по преокту.
-func (p *ProjectMapper) ProjectUpdate(project *entities.Project) (err error) {
+// Обновление информации по проекту.
+func (m *ProjectMapper) ProjectUpdate(project *entities.Project) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	defer db.Close()
 
@@ -93,10 +102,11 @@ func (p *ProjectMapper) ProjectUpdate(project *entities.Project) (err error) {
 }
 
 // Удаление проекта.
-func (p *ProjectMapper) ProjectDelete(id string) (err error) {
+func (m *ProjectMapper) ProjectDelete(id string) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	defer db.Close()
 
@@ -105,6 +115,7 @@ func (p *ProjectMapper) ProjectDelete(id string) (err error) {
 
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 
 	return

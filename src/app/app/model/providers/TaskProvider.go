@@ -7,13 +7,32 @@ import (
 )
 
 type TaskProvider struct {
-	mapper *mappers.TaskMapper
+	mapper   *mappers.TaskMapper
+	provider *EmployeeProvider
 }
 
-func (t *TaskProvider) UpdatingTask(DesignatedEmployee string, Hours int, HoursSpent int, IdTask, Id_project, StatusTask, Task, TaskDescription string) (err error) {
-	task, err := t.mapper.GetTaskById(IdTask)
+//
+func (p *TaskProvider) GetAllTasks() (tasks []entities.Task, err error) {
+	p.mapper = new(mappers.TaskMapper)
 
-	idDesignatedEmployee := t.mapper.GetIdDesignatedEmployee(DesignatedEmployee)
+	tasks, err = p.mapper.GetTasksByDB()
+	if err != nil {
+		return tasks, err
+	}
+
+	return tasks, err
+}
+
+func (p *TaskProvider) UpdatingTask(DesignatedEmployee string, Hours int, HoursSpent int, IdTask, Id_project, StatusTask, Task, TaskDescription string) (err error) {
+	p.mapper = new(mappers.TaskMapper)
+	task, err := p.mapper.GetTaskById(IdTask)
+
+	p.provider = new(EmployeeProvider)
+	idDesignatedEmployee, err := p.provider.GetIdDesignatedEmployee(DesignatedEmployee)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
 	task.Task = Task
 	task.DesignatedEmployee = idDesignatedEmployee
@@ -22,22 +41,26 @@ func (t *TaskProvider) UpdatingTask(DesignatedEmployee string, Hours int, HoursS
 	task.StatusTask = StatusTask
 	task.TaskDescription = TaskDescription
 
-	err = t.mapper.TaskUpdate(&task)
+	err = p.mapper.TaskUpdate(&task)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 
-	return err
+	return
 }
 
-func (t *TaskProvider) NewTask(id_project int, task string, designatedEmployee string, hours int, hoursSpent int, statusTask string, taskDescription string) (id int) {
+func (p *TaskProvider) NewTask(id_project int, task, designatedEmployee string, hours int, hoursSpent int, statusTask, taskDescription string) (id int, err error) {
 	newTask := &entities.Task{Id_project: id_project, Task: task, DesignatedEmployee: designatedEmployee, Hours: hours,
 		HoursSpent: hoursSpent, StatusTask: statusTask, TaskDescription: taskDescription}
 
-	id, err := t.mapper.TaskAdd(newTask)
+	p.mapper = new(mappers.TaskMapper)
+
+	id, err = p.mapper.TaskAdd(newTask)
 	if err != nil {
 		fmt.Println(err)
+		return 0, err
 	}
 
-	return id
+	return id, err
 }

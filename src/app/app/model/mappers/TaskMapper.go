@@ -11,10 +11,12 @@ type TaskMapper struct {
 	mapper *EmployeeMapper
 }
 
-func (t *TaskMapper) GetAllTask() (tasks []entities.Task, err error) {
+// Получение всех существующих задач из базы данных.
+func (m *TaskMapper) GetTasksByDB() (tasks []entities.Task, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return tasks, err
 	}
 	defer db.Close()
 
@@ -22,6 +24,7 @@ func (t *TaskMapper) GetAllTask() (tasks []entities.Task, err error) {
 	rows, err := db.Query(query)
 	if err != nil {
 		fmt.Println(err)
+		return tasks, err
 	}
 	defer rows.Close()
 
@@ -31,22 +34,28 @@ func (t *TaskMapper) GetAllTask() (tasks []entities.Task, err error) {
 		err = rows.Scan(&task.Id_project, &task.IdTask, &task.Task, &task.DesignatedEmployee, &task.Hours, &task.HoursSpent, &task.StatusTask, &task.TaskDescription)
 		if err != nil {
 			fmt.Println(err)
+			return tasks, err
 		}
-		designatedEmployee, err := t.mapper.GetEmployeeById(task.DesignatedEmployee)
+
+		m.mapper = new(EmployeeMapper)
+		employee, err := m.mapper.GetEmployeeById(task.DesignatedEmployee)
 		if err != nil {
 			fmt.Println(err)
+			return tasks, err
 		}
-		task.DesignatedEmployee = designatedEmployee.Surname + " " + designatedEmployee.Name
+		task.DesignatedEmployee = employee.Surname + " " + employee.Name
 		tasks = append(tasks, task)
 	}
 
 	return tasks, err
 }
 
-func (t *TaskMapper) GetTaskById(id string) (task entities.Task, err error) {
+// Получение задачи по её id.
+func (m *TaskMapper) GetTaskById(id string) (task entities.Task, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return task, err
 	}
 	defer db.Close()
 
@@ -56,18 +65,20 @@ func (t *TaskMapper) GetTaskById(id string) (task entities.Task, err error) {
 	task = entities.Task{}
 
 	err = row.Scan(&task.Id_project, &task.IdTask, &task.Task, &task.DesignatedEmployee, &task.Hours, &task.HoursSpent, &task.StatusTask, &task.TaskDescription)
-
 	if err != nil {
 		fmt.Println(err)
+		return task, err
 	}
 
 	return task, err
 }
 
-func (t *TaskMapper) TaskUpdate(task *entities.Task) (err error) {
+// Обновление задачи.
+func (m *TaskMapper) TaskUpdate(task *entities.Task) (err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	defer db.Close()
 
@@ -77,19 +88,21 @@ func (t *TaskMapper) TaskUpdate(task *entities.Task) (err error) {
 	return
 }
 
-func (t *TaskMapper) TaskAdd(task *entities.Task) (id int, err error) {
+// Добавление новой задачи. Возвращает id добавленной задачи для экземпляра класса фронта.
+func (m *TaskMapper) TaskAdd(task *entities.Task) (id int, err error) {
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return 0, err
 	}
 	defer db.Close()
 
 	query := `INSERT INTO tasksproject (id_project, task, designatedemployee, hours, hoursspent, statustask, taskdescription) VALUES ($1, $2, $3, $4, $5, $6, $7) 
 	returning id`
-	db.QueryRow(query, task.Id_project, task.Task, task.DesignatedEmployee, task.Hours, task.HoursSpent, task.StatusTask, task.TaskDescription).Scan(&id)
-
+	err = db.QueryRow(query, task.Id_project, task.Task, task.DesignatedEmployee, task.Hours, task.HoursSpent, task.StatusTask, task.TaskDescription).Scan(&id)
 	if err != nil {
 		fmt.Println(err)
+		return 0, err
 	}
 
 	return id, err
