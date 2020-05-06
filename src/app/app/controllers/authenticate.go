@@ -25,11 +25,6 @@ func (c Authenticate) Sign() revel.Result {
 
 // Регистрация нового пользователя.
 func (c Authenticate) Registration(Email, Password string) revel.Result {
-	if Email == "" || Password == "" {
-		message := "Данные некорректны. Добавить нового пользователя не удалось"
-		return c.RenderJSON(message)
-	}
-
 	email := Email
 	password := Password
 
@@ -43,7 +38,7 @@ func (c Authenticate) Registration(Email, Password string) revel.Result {
 	c.provider = new(providers.UserProvider)
 	err = c.provider.NewUser(email, password)
 	if err != nil {
-		return c.RenderJSON(err)
+		return c.RenderError(err)
 	}
 
 	return c.Render()
@@ -51,12 +46,6 @@ func (c Authenticate) Registration(Email, Password string) revel.Result {
 
 // Вход пользователя на сайт. Проверка введённых email и пароля.
 func (c Authenticate) Login(Email, Password string) revel.Result {
-	if Email == "" || Password == "" {
-		message := "Введены некорректные данные"
-		fmt.Println(message)
-		return c.RenderJSON(message)
-	}
-
 	email := Email
 	password := Password
 

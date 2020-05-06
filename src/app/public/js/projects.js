@@ -23,7 +23,7 @@ const xhrRequestProject = {
     },
 
     xhrUpdateProject: function(valueForm) {
-        webix.ajax().post('/project/:id/update', valueForm).then(function() {
+        webix.ajax().post('/project/update', valueForm).then(function() {
             for ( let i = 0; i < massProjects.length; i++ ) {
                 if ( massProjects[i].Id == valueForm.Id ) {
                     massProjects[i].Name = valueForm.Name;
@@ -49,7 +49,7 @@ const xhrRequestProject = {
 
     xhrDelProject: function(id, idProject) {
         idProject = {Id: idProject};
-        webix.ajax().post('/project/:id/delete', idProject ).then(function() {
+        webix.ajax().post('/project/delete', idProject ).then(function() {
             for ( let i = 0; i < massProjects.length; i++ ) {
                 if (massProjects[i].Id == idProject.Id) {
                     massProjects.splice(i, 1);
@@ -61,15 +61,6 @@ const xhrRequestProject = {
         }).catch(error => showError(error));
     }
 };
-
-function showError(err) {
-    webix.message({
-        text: err,
-        type: 'error', 
-        expire: 10000,
-        id: 'message6'
-    });
-}
 
 // Основная компонента проектов. Состоит из меню управления и таблицы для вывода данных.
 let activeProjects = {

@@ -8,7 +8,7 @@ import (
 )
 
 type UserMapper struct {
-	User entities.User
+	User *entities.User
 }
 
 func (u *UserMapper) GetUserByEmail(email string) (user entities.User, err error) {

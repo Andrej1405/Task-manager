@@ -43,7 +43,7 @@ const xhrRequestTask = {
     },
     
     xhrUpdateTask: function(valueForm) {
-        webix.ajax().post('/task/:id/update', valueForm).then(function(data) {
+        webix.ajax().post('/task/update', valueForm).then(function(data) {
             for ( let i = 0; i < massEmployees.length; i++ ) {
                 if ( valueForm.DesignatedEmployee == massEmployees[i].Id) {
                     valueForm.DesignatedEmployee = `${massEmployees[i].Surname} ${massEmployees[i].Name}`;
@@ -65,15 +65,6 @@ const xhrRequestTask = {
         }).catch( error => showError(error) );
     },
 };
-
-function showError(err) {
-    webix.message({
-        text: err,
-        type: 'error', 
-        expire: 10000,
-        id: 'message5'
-    });
-}
 
 // Основное окно, отображающее задачи выбранного проекта.
 function showProject() {
@@ -111,7 +102,7 @@ function showProject() {
                 {
                     cols: [
                         { view: 'button', value: 'Добавить задачу', click: addTask, minWidth: 65, css: 'webix_primary' },
-                        { view: 'button', value: 'Показать / скрыть закрытые задачи', click: hideShow, minWidth: 65, css: 'webix_primary' },
+                        { view: 'button', value: 'Показать / скрыть отменённые,закрытые задачи', click: hideShow, minWidth: 65, css: 'webix_primary' },
                         { view: 'button', value: 'Вернуться на главную' , click: canselTasks, minWidth: 65, css: 'webix_primary' }
                     ]
                 }
@@ -123,8 +114,9 @@ function showProject() {
     const activeProject = $$('tableActiveProjects').getSelectedItem(),
           idActiveProject = activeProject.Id;
 
-    // Массив, хранящий в себе задачи со статусом "Закрыто" и массив сотрудников для удобного вывода Фамилии-Имени сотрудника в форме и окне задач.
-    let massHide = [],
+    /* Массив, хранящий в себе задачи со статусом "Закрыто" и "Отменено". 
+       Массив сотрудников для удобного вывода Фамилии-Имени сотрудника в форме и окне задач. */
+    const massHide = [],
         employeesInvolved = [];
     
     for ( let i = 0; i < massEmployees.length; i++ ) {
@@ -140,7 +132,7 @@ function showProject() {
         if ( massTasks[i].Id_project == idActiveProject ) {
             $$('tableTasksProject').add(massTasks[i]);
 
-            if ( massTasks[i].StatusTask == 'Закрыто') {
+            if ( massTasks[i].StatusTask == 'Закрыто' || massTasks[i].StatusTask == 'Отменено') {
                 massHide.push(massTasks[i]);
 
                 let item = $$('tableTasksProject').getItem(massTasks[i].id);
@@ -336,7 +328,7 @@ function showProject() {
                 
                 xhrRequestTask.xhrUpdateTask(dataTask);
                 // Если статус задачи "Закрыто", то задача добавляется в массив задач, которые скрываются / отображаются нажатием кнопки.
-                if ( dataTask.StatusTask == 'Закрыто' ) {
+                if ( dataTask.StatusTask == 'Закрыто' || dataTask.StatusTask == 'Отменено') {
                     for ( let i = 0; i < massTasks.length; i++ ) {
                         if (massTasks[i].IdTask == dataTask.IdTask) {
                             massHide.push(massTasks[i]);

@@ -12,18 +12,19 @@ type EmployeeProvider struct {
 	mapper *mappers.EmployeeMapper
 }
 
+//Получение сотрудников.
 func (p *EmployeeProvider) GetEmployees() (employees []entities.Employee, err error) {
 	p.mapper = new(mappers.EmployeeMapper)
 
 	employees, err = p.mapper.GetAllEmployees()
 	if err != nil {
-		fmt.Println(err)
 		return employees, err
 	}
 
 	return employees, err
 }
 
+//Обновление сотрудника.
 func (p *EmployeeProvider) UpdateEmploy(Id, Surname, Name, Position string) (err error) {
 	p.mapper = new(mappers.EmployeeMapper)
 
@@ -39,13 +40,13 @@ func (p *EmployeeProvider) UpdateEmploy(Id, Surname, Name, Position string) (err
 
 	err = p.mapper.EmployeeUpdate(&employee)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
 	return
 }
 
+//Создание нового сотрудника.
 func (p *EmployeeProvider) NewEmployee(Surname, Name, Position string) (id int, err error) {
 	p.mapper = new(mappers.EmployeeMapper)
 
@@ -53,13 +54,13 @@ func (p *EmployeeProvider) NewEmployee(Surname, Name, Position string) (id int, 
 
 	id, err = p.mapper.EmployeeAdd(employee)
 	if err != nil {
-		fmt.Println(err)
 		return 0, err
 	}
 
 	return id, err
 }
 
+//Получение id сотрудника.
 func (p *EmployeeProvider) GetIdDesignatedEmployee(employee string) (id string, err error) {
 	p.mapper = new(mappers.EmployeeMapper)
 
@@ -70,7 +71,6 @@ func (p *EmployeeProvider) GetIdDesignatedEmployee(employee string) (id string, 
 
 	rowDesignatedEmployee, err := p.mapper.GetEmployeeBySurnameName(surname, name)
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 
@@ -78,12 +78,12 @@ func (p *EmployeeProvider) GetIdDesignatedEmployee(employee string) (id string, 
 	return id, err
 }
 
+//Удаление сотрудника.
 func (p *EmployeeProvider) DelEmployee(id string) (err error) {
 	p.mapper = new(mappers.EmployeeMapper)
 
 	err = p.mapper.EmployeeDelete(id)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 

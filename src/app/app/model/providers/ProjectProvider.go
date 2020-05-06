@@ -10,6 +10,7 @@ type ProjectProvider struct {
 	mapper *mappers.ProjectMapper
 }
 
+//Получение всех проектов.
 func (p *ProjectProvider) GetAllProjects() (projects []entities.Project, err error) {
 	p.mapper = new(mappers.ProjectMapper)
 
@@ -21,6 +22,7 @@ func (p *ProjectProvider) GetAllProjects() (projects []entities.Project, err err
 	return projects, err
 }
 
+//Добавление нового проекта.
 func (p *ProjectProvider) NewProject(name string) (id int, err error) {
 	p.mapper = new(mappers.ProjectMapper)
 
@@ -34,6 +36,7 @@ func (p *ProjectProvider) NewProject(name string) (id int, err error) {
 	return id, err
 }
 
+//Обновление существующего проекта.
 func (p *ProjectProvider) UpdateProj(id, name string) (err error) {
 	p.mapper = new(mappers.ProjectMapper)
 
@@ -53,6 +56,7 @@ func (p *ProjectProvider) UpdateProj(id, name string) (err error) {
 	return
 }
 
+//Удаление проекта по его id.
 func (p *ProjectProvider) DeleteProjectById(id string) (err error) {
 	p.mapper = new(mappers.ProjectMapper)
 

@@ -14,10 +14,10 @@
         // Объект, содержащий асинхронные запросы.
         const xhrRequestUser = {
             xhrAddUser: function(valueForm) {
-                webix.ajax().post('/authentication/:id/registration', valueForm).then(function(message) {
+                webix.ajax().post('/authentication/registration', valueForm).then(function(message) {
                     let errMessage = message.json();
 
-                    if (errMessage != null) {
+                    if ( errMessage != null ) {
                         webix.message({
                             text: errMessage,
                             type: 'error', 
@@ -35,15 +35,15 @@
                     $$('dataNewUser').clear();
                     $$('newUser').hide();
                     return
-                });
+                }).catch( error => showError(error));
             },
 
             xhrConnectUser: function(valueForm) {
-                webix.ajax().post(':id/login', valueForm).then(function(bool) {
+                webix.ajax().post('/authentication/login', valueForm).then(function(bool) {
                     let boolean = bool.json();
 
-                    if (boolean == true) {
-                        window.location = "http://localhost:9000/";
+                    if ( boolean == true ) {
+                        window.location = "http://10.255.255.200:9000/authentication/signin";
                     } else {
                         webix.message({
                             text: 'Неверно введён логин или пароль',
@@ -52,7 +52,7 @@
                             id: 'message4'
                         });
                     }
-                });
+                }).catch( error => showError(error));
             },
         };
 
@@ -73,8 +73,8 @@
                     labelWidth: 150
                 },
                 elements: [
-                    { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введите ваш email', validate: webix.rules.isEmail },
-                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Пароль должен быть больше 6 символов',  },
+                    { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введите ваш email', validate: webix.rules.isNotEmpty },
+                    { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Пароль должен быть больше 3 символов',  },
                     { view: 'text', type: 'password', label: 'Подтвердите пароль', name: 'confirmPassword', invalidMessage: 'Пароли не совпадают', },
                     { margin: 5, cols: [
                     { view: 'button', value: 'Зарегистрироваться', minWidth: 100, css: 'webix_primary', click: addNewUser },
@@ -83,7 +83,7 @@
             ],
                 rules: {
                     Password: function(value) {
-                        let regexp = /[0-9a-zA-Z!@#$%^&*-]{6,}/;
+                        let regexp = /[0-9a-zA-Z!@#$%^&*-]{3,}/;
 
                         if (regexp.test(value)) {
                             return value
@@ -92,7 +92,7 @@
 
                     confirmPassword: function(value) {
                         const valueUser = $$('dataNewUser').getValues();
-                        if (valueUser.Password == valueUser.confirmPassword) {
+                        if ( valueUser.Password == valueUser.confirmPassword ) {
                             return value
                         }
                     }
@@ -143,7 +143,7 @@
             labelWidth: 80
         },
             elements: [
-                { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введён некорректный email', validate: webix.rules.isEmail },
+                { view: 'text', label: 'Email', name: 'Email', invalidMessage: 'Введён некорректный email', validate: webix.rules.isNotEmpty },
                 { view: 'text', type: 'password', label: 'Пароль', name: 'Password', invalidMessage: 'Введён некорретный пароль' },
                 {   cols: [
                     { view: 'button', value: 'Войти' , minWidth: 70, css: 'webix_primary', click: login },
@@ -154,9 +154,9 @@
         ],
             rules: {
                 Password: function(value) {
-                    let regexp = /[0-9a-zA-Z!@#$%^&*-]{6,}/;
+                    let regexp = /[0-9a-zA-Z!@#$%^&*-]{3,}/;
 
-                    if (regexp.test(value)) {
+                    if ( regexp.test(value) ) {
                         return value
                     }   
                 },

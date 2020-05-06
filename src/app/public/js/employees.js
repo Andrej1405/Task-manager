@@ -15,7 +15,6 @@ const xhrRequestEmployee = {
     xhrGetEmployees: function() {
         webix.ajax().get('getEmployee').then(function(data) {
             data = data.json();
-            
             for ( let i = 0; i < data.length; i++ ) {
                 let employee = new Employee(data[i].Id, data[i]);
 
@@ -40,7 +39,7 @@ const xhrRequestEmployee = {
 
     xhrDelEmployees: function(id, idEmployee) {
         idEmployee = {Id: idEmployee};
-        webix.ajax().post('/employee/:id/delete', idEmployee ).then(function() {
+        webix.ajax().post('/employee/delete', idEmployee ).then(function() {
             for ( let i = 0; i < massEmployees.length; i++ ) {
                 if (massEmployees[i].Id == idEmployee.Id) {
                     massEmployees.splice(i, 1);
@@ -52,7 +51,7 @@ const xhrRequestEmployee = {
     },
 
     xhrUpdateEmployees: function(valueForm) {
-        webix.ajax().post('/employee/:id/update', valueForm).then(function(){
+        webix.ajax().post('/employee/update', valueForm).then(function(){
             for ( let i = 0; i < massEmployees.length; i++ ) {
                 if (massEmployees[i].Id == valueForm.Id) {
                     massEmployees[i].Surname = valueForm.Surname;
@@ -65,15 +64,6 @@ const xhrRequestEmployee = {
         }).catch( error => showError(error) );
     },
 };
-
-function showError(err) {
-    webix.message({
-        text: err,
-        type: 'error', 
-        expire: 10000,
-        id: 'message4'
-    });
-}
 
 // Блок сайта, отвечающий за представление списка сотрудников.
 let activeEmployees = {

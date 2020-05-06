@@ -8,6 +8,7 @@ import (
 )
 
 type TaskMapper struct {
+	Task   *entities.Task
 	mapper *EmployeeMapper
 }
 

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="public/css/webix.css">
     <script src="public/js/webix.js"></script>
     
-    <!-- Модули сайта, для удобства вынесенные в отдельные файлы -->
+    <!-- Модули сайта, вынесенные в отдельные файлы -->
     <script src='public/js/tasksProject.js'></script>
     <script src='public/js/projects.js'></script>
     <script src='public/js/employees.js'></script>
@@ -17,11 +17,12 @@
 <body>
     <script>
     
-    function xhrLogoutUser() {
-        webix.ajax().post('/authentication/:id/logout').then(function() {
-            window.location = "http://localhost:9000/authentication/signin";
-        });
-    }   
+        function xhrLogoutUser() {
+            webix.ajax().post('/authentication/logout').then(function() {
+                window.location = "http://10.255.255.200:9000/authentication/signin";
+            }).catch( error => showError(error) );
+        }
+
         // Шапка сайта
         let header = {
             view: 'toolbar', 
@@ -69,6 +70,16 @@
                 ]       
             });
         });
+
+        function showError(err) {
+            err = err.response;
+            webix.message({
+                text: err,
+                type: 'error', 
+                expire: 10000,
+                id: 'message5'
+            });
+        }
     </script>
 </body>
 </html>

@@ -8,7 +8,7 @@ import (
 )
 
 type EmployeeMapper struct {
-	Employee entities.Employee
+	Employee *entities.Employee
 }
 
 // Получение всех сотрудников из базы данных.

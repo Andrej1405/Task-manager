@@ -13,6 +13,7 @@ type UserProvider struct {
 	mapper *mappers.UserMapper
 }
 
+//Добавление нового пользователя. Хэширование пароля.
 func (p *UserProvider) NewUser(email, password string) (err error) {
 	password = app.HashPassword([]byte(password))
 
@@ -29,6 +30,7 @@ func (p *UserProvider) NewUser(email, password string) (err error) {
 	return err
 }
 
+//Сравнение данных пользователя, хранящихся в бд и введённых пользователем.
 func (p *UserProvider) AutoriseUser(email, password string) bool {
 	p.mapper = new(mappers.UserMapper)
 	user, err := p.mapper.GetUserByEmail(email)

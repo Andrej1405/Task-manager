@@ -11,22 +11,22 @@ GET     /                                      App.Index
 
 GET     /getProject                            ControllerProject.GetProject
 POST    /project/add                           ControllerProject.AddNewProject
-POST    /project/:id/delete                    ControllerProject.DeleteProject
-POST    /project/:id/update                    ControllerProject.UpdateProject
+POST    /project/delete                        ControllerProject.DeleteProject
+POST    /project/update                        ControllerProject.UpdateProject
 
 GET     /getEmployee                           ControllerEmployee.GetEmployee
 POST    /employee/add                          ControllerEmployee.AddNewEmployee
-POST    /employee/:id/update                   ControllerEmployee.UpdateEmployee
-POST    /employee/:id/delete                   ControllerEmployee.DeleteEmployee
+POST    /employee/update                       ControllerEmployee.UpdateEmployee
+POST    /employee/delete                       ControllerEmployee.DeleteEmployee
 
 GET     /getTask                               ControllerTask.GetTask
 POST    /task/add                              ControllerTask.AddNewTask
-POST    /task/:id/update                       ControllerTask.UpdateTask
+POST    /task/update                           ControllerTask.UpdateTask
 
 GET     /authentication/signin                 Authenticate.Sign
-POST    /authentication/:id/registration       Authenticate.Registration
-POST    /authentication/:id/login              Authenticate.Login
-POST    /authentication/:id/logout             Authenticate.Logout
+POST    /authentication/registration           Authenticate.Registration
+POST    /authentication/login                  Authenticate.Login
+POST    /authentication/logout                 Authenticate.Logout
 
 # Map static resources from the /app/public folder to the /public path
 GET     /public/*filepath                       Static.Serve("public")

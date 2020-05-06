@@ -11,7 +11,7 @@ type TaskProvider struct {
 	provider *EmployeeProvider
 }
 
-//
+//Получение всех задач.
 func (p *TaskProvider) GetAllTasks() (tasks []entities.Task, err error) {
 	p.mapper = new(mappers.TaskMapper)
 
@@ -23,6 +23,7 @@ func (p *TaskProvider) GetAllTasks() (tasks []entities.Task, err error) {
 	return tasks, err
 }
 
+//Обновление задачи.
 func (p *TaskProvider) UpdatingTask(DesignatedEmployee string, Hours int, HoursSpent int, IdTask, Id_project, StatusTask, Task, TaskDescription string) (err error) {
 	p.mapper = new(mappers.TaskMapper)
 	task, err := p.mapper.GetTaskById(IdTask)
@@ -50,6 +51,7 @@ func (p *TaskProvider) UpdatingTask(DesignatedEmployee string, Hours int, HoursS
 	return
 }
 
+//Создание новой задачи.
 func (p *TaskProvider) NewTask(id_project int, task, designatedEmployee string, hours int, hoursSpent int, statusTask, taskDescription string) (id int, err error) {
 	newTask := &entities.Task{Id_project: id_project, Task: task, DesignatedEmployee: designatedEmployee, Hours: hours,
 		HoursSpent: hoursSpent, StatusTask: statusTask, TaskDescription: taskDescription}
