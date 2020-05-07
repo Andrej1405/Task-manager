@@ -12,16 +12,17 @@ type UserMapper struct {
 }
 
 func (u *UserMapper) GetUserByEmail(email string) (user entities.User, err error) {
+	user = entities.User{}
+
 	db, err := sql.Open("postgres", config.InitConnectionString())
 	if err != nil {
 		fmt.Println(err)
+		return user, err
 	}
 	defer db.Close()
 
 	query := `SELECT * FROM users WHERE email = $1`
 	row := db.QueryRow(query, email)
-
-	user = entities.User{}
 
 	err = row.Scan(&user.Id, &user.Email, &user.Password)
 	if err != nil {
@@ -38,10 +39,11 @@ func (u *UserMapper) AddNewUser(user *entities.User) (err error) {
 	}
 	defer db.Close()
 
-	query := `INSERT INTO users (email, password) VALUES ($1, $2) returning id`
+	query := `INSERT INTO users (email, password) VALUES ($1, $2)`
 	db.QueryRow(query, user.Email, user.Password)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 
 	return err
